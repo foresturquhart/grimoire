@@ -10,13 +10,13 @@ import (
 )
 
 // Version is injected at build time
-var Version = "dev"
+var version = "dev"
 
 func main() {
 	cmd := &cli.Command{
 		Name:      "grimoire",
 		Usage:     "convert a directory to content suitable for LLM interpretation.",
-		Version:   Version,
+		Version:   version,
 		ArgsUsage: "[target directory]",
 		Flags: []cli.Flag{
 			&cli.StringFlag{

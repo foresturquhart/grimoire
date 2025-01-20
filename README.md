@@ -16,18 +16,16 @@ Grimoire is a command-line tool that converts the contents of a directory into a
 
 - Git (required for repositories using Git sorting)
 
+### Download Binary (Recommended)
+
+Download the pre-compiled binary for your platform from the [releases page](https://github.com/foresturquhart/grimoire/releases).
+
 ### Install using Go
 
-The easiest way to install Grimoire is using Go:
+You can install Grimoire using Go:
 
 ```bash
 go install github.com/foresturquhart/grimoire/cmd/grimoire@latest
-```
-
-This will install the latest released version. To install a specific version:
-
-```bash
-go install github.com/foresturquhart/grimoire/cmd/grimoire@v1.0.0
 ```
 
 ### Build from Source
