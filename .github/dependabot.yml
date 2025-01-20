@@ -1,0 +1,12 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      day: thursday
+      interval: weekly
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      day: thursday
+      interval: weekly
