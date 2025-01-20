@@ -48,7 +48,7 @@ builds:
         goarch: s390x
     dir: .
     main: ./cmd/grimoire
-    binary: mlr
+    binary: grimoire
     flags:
       - -trimpath
 

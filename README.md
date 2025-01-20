@@ -2,8 +2,6 @@
 
 Grimoire is a command-line tool that converts the contents of a directory into a structured Markdown document, making it suitable for interpretation by large language models (LLMs). It is designed to be lightweight, highly configurable, and easy to use.
 
----
-
 ## Features
 
 - **Recursive File Scanning**: Scans directories and subdirectories for eligible files based on customizable extensions.
@@ -12,16 +10,29 @@ Grimoire is a command-line tool that converts the contents of a directory into a
 - **Git Integration**: Sorts files by commit frequency for relevance-based ordering if scanning a Git repository.
 - **Flexible Output**: Write output to stdout or a specified file.
 
----
-
 ## Installation
 
 ### Prerequisites
 
-- Go 1.23.4 or later
 - Git (required for repositories using Git sorting)
 
+### Install using Go
+
+The easiest way to install Grimoire is using Go:
+
+```bash
+go install github.com/foresturquhart/grimoire/cmd/grimoire@latest
+```
+
+This will install the latest released version. To install a specific version:
+
+```bash
+go install github.com/foresturquhart/grimoire/cmd/grimoire@v1.0.0
+```
+
 ### Build from Source
+
+Alternatively, you can build from source:
 
 1. Clone the repository:
    ```bash
@@ -43,8 +54,6 @@ Grimoire is a command-line tool that converts the contents of a directory into a
    ```bash
    grimoire --version
    ```
-
----
 
 ## Usage
 
@@ -82,8 +91,6 @@ grimoire [options] <target directory>
    grimoire ./my-git-repo
    ```
 
----
-
 ## Configuration
 
 ### Allowed Extensions
@@ -93,8 +100,6 @@ Grimoire processes files with specific extensions by default. You can customize 
 ### Ignored Patterns
 
 Files and directories matching the `IgnoredPatterns` constant are skipped during processing. This includes temporary files, build artifacts, and version control directories.
-
----
 
 ## Contributing
 
@@ -115,13 +120,9 @@ Contributions are welcome! Please follow these steps:
    ```
 5. Open a pull request.
 
----
-
 ## License
 
 Grimoire is licensed under the [MIT License](LICENSE).
-
----
 
 ## Acknowledgements
 
@@ -130,9 +131,6 @@ Grimoire uses the following libraries:
 - [gocodewalker](https://github.com/boyter/gocodewalker) for efficient file traversal.
 - [slog](https://pkg.go.dev/log/slog) for structured logging.
 
----
-
 ## Feedback and Support
 
 If you encounter issues or have suggestions, please open an issue on the [GitHub repository](https://github.com/foresturquhart/grimoire/issues).
-
