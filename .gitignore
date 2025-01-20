@@ -1,0 +1,4 @@
+*.out
+coverage.txt
+coverage.html
+dist/
