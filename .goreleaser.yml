@@ -51,6 +51,8 @@ builds:
     binary: grimoire
     flags:
       - -trimpath
+    ldflags:
+      - -s -w -X main.Version={{.Version}}
 
 archives:
   - format: tar.gz
