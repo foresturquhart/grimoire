@@ -53,7 +53,7 @@ func getCommitCounts(repoDir string) (map[string]int, error) {
 	cmd := exec.Command("git", "-C", repoDir, "log", "--name-only", "--pretty=format:", "--no-merges", "--relative")
 	var out bytes.Buffer
 	cmd.Stdout = &out
-	cmd.Stderr = nil
+	cmd.Stderr = os.Stderr
 
 	// Execute the Git log command
 	if err := cmd.Run(); err != nil {
