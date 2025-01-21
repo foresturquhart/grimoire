@@ -86,3 +86,9 @@ func getGitCommitCounts(repoDir string) (map[string]int, error) {
 
 	return commitCounts, nil
 }
+
+// IsGitAvailable checks if git is available on the system.
+func IsGitAvailable() bool {
+	_, err := exec.LookPath("git")
+	return err == nil
+}

@@ -28,30 +28,30 @@ func Run(cfg *Config) error {
 		}
 	}
 
-	// Attempt to find the Git repo for sorting files by importance
-	gitRoot, err := FindGitRoot(absDir)
-	if err != nil {
-		// If we can't find a repo, we simply skip commit-based sorting
-		slog.Warn("No repository found; skipping commit-based sorting", "error", err)
-		gitRoot = ""
-	} else {
-		slog.Info("Found repository", "path", gitRoot)
-	}
-
 	// Retrieve the list of files to process
 	files, err := GetFiles(absDir)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve files: %w", err)
 	}
 
-	// If a Git root is found, sort files by commit frequency using Git commit data
-	if gitRoot != "" {
-		slog.Info("Sorting files by commit frequency")
-
-		files, err = SortByCommitFrequency(gitRoot, files, DefaultChangeCounter)
+	// If git is available, we'll attempt to sort by commit frequency
+	if IsGitAvailable() {
+		// Attempt to find the Git repo for sorting files by importance
+		gitRoot, err := FindGitRoot(absDir)
 		if err != nil {
-			return fmt.Errorf("failed to sort files by commit frequency: %w", err)
+			// If we can't find a repo, we simply skip commit-based sorting
+			slog.Warn("No repository found, skipping commit-based sorting", "error", err)
+		} else {
+			slog.Info("Found repository, sorting files by commit frequency", "path", gitRoot)
+
+			// sort files by commit frequency using Git commit data
+			files, err = SortByCommitFrequency(gitRoot, files, DefaultChangeCounter)
+			if err != nil {
+				return fmt.Errorf("failed to sort files by commit frequency: %w", err)
+			}
 		}
+	} else {
+		slog.Warn("Git not found, skipping commit-based sorting")
 	}
 
 	// Create an output writer for the Markdown output
