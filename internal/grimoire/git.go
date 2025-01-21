@@ -33,9 +33,12 @@ func FindGitRoot(startDir string) (string, error) {
 	}
 }
 
+// ChangeCounter defines a function type for getting change counts.
+type ChangeCounter func(repoDir string) (map[string]int, error)
+
 // SortByCommitFrequency sorts a list of files based on their commit frequency in descending order.
-func SortByCommitFrequency(repoDir string, files []string) ([]string, error) {
-	commitCounts, err := getCommitCounts(repoDir)
+func SortByCommitFrequency(repoDir string, files []string, counter ChangeCounter) ([]string, error) {
+	commitCounts, err := counter(repoDir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get commit counts: %w", err)
 	}
@@ -48,8 +51,13 @@ func SortByCommitFrequency(repoDir string, files []string) ([]string, error) {
 	return files, nil
 }
 
-// getCommitCounts collects the number of commits that modified each file in the repository.
-func getCommitCounts(repoDir string) (map[string]int, error) {
+// DefaultChangeCounter uses the git command to count changes
+func DefaultChangeCounter(repoDir string) (map[string]int, error) {
+	return getGitCommitCounts(repoDir)
+}
+
+// getGitCommitCounts collects the number of commits that modified each file in the repository.
+func getGitCommitCounts(repoDir string) (map[string]int, error) {
 	cmd := exec.Command("git", "-C", repoDir, "log", "--name-only", "--pretty=format:", "--no-merges", "--relative")
 	var out bytes.Buffer
 	cmd.Stdout = &out
