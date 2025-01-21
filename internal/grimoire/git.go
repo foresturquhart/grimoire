@@ -58,7 +58,7 @@ func DefaultChangeCounter(repoDir string) (map[string]int, error) {
 
 // getGitCommitCounts collects the number of commits that modified each file in the repository.
 func getGitCommitCounts(repoDir string) (map[string]int, error) {
-	cmd := exec.Command("git", "-C", repoDir, "log", "--name-only", "--pretty=format:", "--no-merges", "--relative")
+	cmd := exec.Command("git", "-C", repoDir, "log", "--name-only", "-l 99999", "--pretty=format:", "--no-merges", "--relative")
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = os.Stderr
