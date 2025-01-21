@@ -42,7 +42,7 @@ func SortByCommitFrequency(repoDir string, files []string) ([]string, error) {
 
 	// Sort files based on commit frequency
 	sort.Slice(files, func(i, j int) bool {
-		return commitCounts[files[i]] < commitCounts[files[j]] // Descending order by commit count
+		return commitCounts[files[i]] < commitCounts[files[j]] // Ascending order by commit count
 	})
 
 	return files, nil
