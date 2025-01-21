@@ -44,8 +44,8 @@ func Run(cfg *Config) error {
 		} else {
 			slog.Info("Found repository, sorting files by commit frequency", "path", gitRoot)
 
-			// sort files by commit frequency using Git commit data
-			files, err = SortByCommitFrequency(gitRoot, files, DefaultChangeCounter)
+			// sort files by change frequency using Git commit data
+			files, err = SortByChangeFrequency(gitRoot, files, DefaultChangeCounter)
 			if err != nil {
 				return fmt.Errorf("failed to sort files by commit frequency: %w", err)
 			}

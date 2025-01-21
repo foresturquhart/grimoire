@@ -36,8 +36,8 @@ func FindGitRoot(startDir string) (string, error) {
 // ChangeCounter defines a function type for getting change counts.
 type ChangeCounter func(repoDir string) (map[string]int, error)
 
-// SortByCommitFrequency sorts a list of files based on their commit frequency in descending order.
-func SortByCommitFrequency(repoDir string, files []string, counter ChangeCounter) ([]string, error) {
+// SortByChangeFrequency sorts a list of files based on their commit frequency in descending order.
+func SortByChangeFrequency(repoDir string, files []string, counter ChangeCounter) ([]string, error) {
 	commitCounts, err := counter(repoDir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get commit counts: %w", err)
