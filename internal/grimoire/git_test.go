@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestSortByCommitFrequency(t *testing.T) {
+func TestSortByChangeFrequency(t *testing.T) {
 	tests := []struct {
 		name         string
 		files        []string
@@ -69,15 +69,15 @@ func TestSortByCommitFrequency(t *testing.T) {
 			mockCounter := func(repoDir string) (map[string]int, error) {
 				return tt.commitCounts, tt.counterErr
 			}
-			got, err := SortByCommitFrequency("test", tt.files, mockCounter)
+			got, err := SortByChangeFrequency("test", tt.files, mockCounter)
 
 			if (err != nil) != tt.wantErr {
-				t.Errorf("SortByCommitFrequency() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("SortByChangeFrequency() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("SortByCommitFrequency() got = %v, want %v", got, tt.want)
+				t.Errorf("SortByChangeFrequency() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
