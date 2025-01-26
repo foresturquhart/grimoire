@@ -26,6 +26,7 @@ The easiest way to install Grimoire is by downloading a pre-compiled binary from
 4. Move the `grimoire` executable to a directory in your system's `PATH` (e.g., `/usr/local/bin` or `~/.local/bin`). You may need to use `sudo` for system-wide locations:
    ```bash
    tar -xzf grimoire-1.1.0-linux-amd64.tar.gz
+   cd grimoire-1.1.0-linux-amd64
    sudo mv grimoire /usr/local/bin/
    ```
 5. Verify the installation:
