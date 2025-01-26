@@ -2,6 +2,19 @@
 
 Grimoire is a command-line tool that converts the contents of a directory into a structured Markdown document, making it suitable for interpretation by large language models (LLMs). It is lightweight, highly configurable, and user-friendly.
 
+## Quick Start
+
+```bash
+# Convert current directory to Markdown and copy to clipboard (macOS)
+grimoire . | pbcopy
+
+# Convert current directory to Markdown and copy to clipboard (Linux with xclip)
+grimoire . | xclip -selection clipboard
+
+# Convert current directory and save to file
+grimoire -o output.md .
+```
+
 ## Features
 
 * **Recursive File Scanning:** Automatically traverses directories and subdirectories to identify eligible files based on customizable extensions.
@@ -91,10 +104,6 @@ grimoire [options] <target directory>
 3. Overwrite an existing file:
    ```bash
    grimoire -o output.md -f ./myproject
-   ```
-4. Sort files by commit frequency in a Git repository:
-   ```bash
-   grimoire ./my-git-repo
    ```
 
 ## Configuration
