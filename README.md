@@ -127,7 +127,7 @@ Grimoire is licensed under the [MIT License](LICENSE).
 Grimoire uses the following libraries:
 
 - [gocodewalker](https://github.com/boyter/gocodewalker) for efficient file traversal.
-- [slog](https://pkg.go.dev/log/slog) for structured logging.
+- [zerolog](https://github.com/rs/zerolog) for structured logging.
 
 ## Feedback and Support
 
