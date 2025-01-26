@@ -1,28 +1,41 @@
 # Grimoire
 
-Grimoire is a command-line tool that converts the contents of a directory into a structured Markdown document, making it suitable for interpretation by large language models (LLMs). It is designed to be lightweight, highly configurable, and easy to use.
+Grimoire is a command-line tool that converts the contents of a directory into a structured Markdown document, making it suitable for interpretation by large language models (LLMs). It is lightweight, highly configurable, and user-friendly.
 
 ## Features
 
-- **Recursive File Scanning**: Scans directories and subdirectories for eligible files based on customizable extensions.
-- **Content Filtering**: Skips ignored directories, temporary files, and patterns specified in the configuration.
-- **Markdown Conversion**: Outputs structured Markdown with file headings and content wrapped in triple-backtick code blocks.
-- **Git Integration**: Sorts files by commit frequency for relevance-based ordering if scanning a Git repository.
-- **Flexible Output**: Write output to stdout or a specified file.
+* **Recursive File Scanning:** Automatically traverses directories and subdirectories to identify eligible files based on customizable extensions.
+* **Content Filtering:** Skips ignored directories, temporary files, and patterns defined in the configuration.
+* **Markdown Conversion:** Outputs structured Markdown with file headings and content enclosed in triple-backtick code blocks.
+* **Git Integration:** Prioritizes files by commit frequency when working within a Git repository.
+* **Flexible Output:** Supports output to stdout or a specified file.
 
 ## Installation
 
 ### Prerequisites
 
-- Git (required for repositories using Git sorting)
+* Git (required for repositories using Git-based sorting).
 
-### Download Binary (Recommended)
+### Recommended: Download Pre-compiled Binary
 
-Download the pre-compiled binary for your platform from the [releases page](https://github.com/foresturquhart/grimoire/releases).
+The easiest way to install Grimoire is by downloading a pre-compiled binary from the [releases page](https://github.com/foresturquhart/grimoire/releases).
 
-### Install using Go
+1. Visit the [releases page](https://github.com/foresturquhart/grimoire/releases).
+2. Download the appropriate archive for your system (e.g., `grimoire-1.1.0-linux-amd64.tar.gz` or `grimoire-1.1.0-darwin-arm64.tar.gz`).
+3. Extract the archive to retrieve the `grimoire` executable.
+4. Move the `grimoire` executable to a directory in your system's `PATH` (e.g., `/usr/local/bin` or `~/.local/bin`). You may need to use `sudo` for system-wide locations:
+   ```bash
+   tar -xzf grimoire-1.1.0-linux-amd64.tar.gz
+   sudo mv grimoire /usr/local/bin/
+   ```
+5. Verify the installation:
+   ```bash
+   grimoire --version
+   ```
 
-You can install Grimoire using Go:
+### Install using `go install`
+
+For users with Go installed, `go install` offers a straightforward installation method:
 
 ```bash
 go install github.com/foresturquhart/grimoire/cmd/grimoire@latest
@@ -30,25 +43,22 @@ go install github.com/foresturquhart/grimoire/cmd/grimoire@latest
 
 ### Build from Source
 
-Alternatively, you can build from source:
+To build Grimoire from source (useful for development or customization):
 
 1. Clone the repository:
    ```bash
    git clone https://github.com/foresturquhart/grimoire.git
    cd grimoire
    ```
-
 2. Build the binary:
    ```bash
    go build -o grimoire ./cmd/grimoire
    ```
-
-3. Move the binary to your PATH:
+3. Move the binary to your `PATH`:
    ```bash
    mv grimoire /usr/local/bin/
    ```
-
-4. Verify installation:
+4. Verify the installation:
    ```bash
    grimoire --version
    ```
@@ -63,48 +73,45 @@ grimoire [options] <target directory>
 
 ### Options
 
-- `-o, --output <path>`: Specify the output file. Defaults to stdout if not provided.
+- `-o, --output <path>`: Specify an output file. Defaults to stdout if omitted.
 - `-f, --force`: Overwrite the output file if it already exists.
-- `--version`: Display the current version of the tool.
+- `--version`: Display the current version.
 
 ### Examples
 
-1. Convert a directory into Markdown and print to stdout:
+1. Convert a directory into Markdown and print the output to stdout:
    ```bash
    grimoire ./myproject
    ```
-
 2. Save the output to a file:
    ```bash
    grimoire -o output.md ./myproject
    ```
-
 3. Overwrite an existing file:
    ```bash
    grimoire -o output.md -f ./myproject
    ```
-
-4. Use in a Git repository and sort files by commit frequency:
+4. Sort files by commit frequency in a Git repository:
    ```bash
    grimoire ./my-git-repo
    ```
 
 ## Configuration
 
-### Allowed Extensions
+### Allowed File Extensions
 
-Grimoire processes files with specific extensions by default. You can customize the allowed extensions by modifying the `AllowedExtensions` constant in the codebase.
+Grimoire processes files with specific extensions. You can customize these by modifying the `DefaultAllowedFileExtensions` constant in the codebase.
 
-### Ignored Patterns
+### Ignored Path Patterns
 
-Files and directories matching the `IgnoredPatterns` constant are skipped during processing. This includes temporary files, build artifacts, and version control directories.
+Files and directories matching patterns in the `DefaultIgnoredPathPatterns` constant are excluded from processing. This includes temporary files, build artifacts, and version control directories.
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! To get started:
 
 1. Fork the repository.
-2. Create a new branch for your feature or bugfix:
+2. Create a new branch for your feature or fix:
    ```bash
    git checkout -b feature/my-new-feature
    ```
@@ -112,7 +119,7 @@ Contributions are welcome! Please follow these steps:
    ```bash
    git commit -m "Add my new feature"
    ```
-4. Push to your branch:
+4. Push the branch to your fork:
    ```bash
    git push origin feature/my-new-feature
    ```
@@ -131,4 +138,4 @@ Grimoire uses the following libraries:
 
 ## Feedback and Support
 
-If you encounter issues or have suggestions, please open an issue on the [GitHub repository](https://github.com/foresturquhart/grimoire/issues).
+For issues, suggestions, or feedback, please open an issue on the [GitHub repository](https://github.com/foresturquhart/grimoire/issues).
