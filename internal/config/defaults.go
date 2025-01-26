@@ -1,8 +1,8 @@
-package grimoire
+package config
 
-// AllowedExtensions defines the file extensions that are eligible for processing.
+// DefaultAllowedFileExtensions defines the default file extensions that are eligible for processing.
 // These extensions represent common programming, configuration, and documentation file types.
-var AllowedExtensions = []string{
+var DefaultAllowedFileExtensions = []string{
 	// Programming languages
 	"rs", "c", "h", "cpp", "hpp", "py", "java", "go", "rb", "php", "cs",
 	"fs", "fsx", "fsi", "fsscript", "scala", "kt", "kts", "dart", "swift",
@@ -27,9 +27,9 @@ var AllowedExtensions = []string{
 	"sh", "fish", "tf", "tfvars",
 }
 
-// IgnoredPatterns defines file paths or patterns that should be excluded from processing.
+// DefaultIgnoredPathPatterns defines the default path patterns that are excluded from processing.
 // These include directories, build artifacts, caches, and temporary files.
-var IgnoredPatterns = []string{
+var DefaultIgnoredPathPatterns = []string{
 	// Common directories to ignore
 	`^\.git/`, `^\.next/`, `^node_modules/`, `^vendor/`, `^dist/`,
 	`^build/`, `^out/`, `^target/`, `^bin/`, `^obj/`, `^coverage/`,

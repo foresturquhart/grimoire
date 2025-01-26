@@ -2,17 +2,20 @@ package main
 
 import (
 	"context"
-	"log"
-	"os"
-
-	"github.com/foresturquhart/grimoire/internal/grimoire"
+	"github.com/foresturquhart/grimoire/internal/config"
+	"github.com/foresturquhart/grimoire/internal/core"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v3"
+	"os"
 )
 
 // Version is injected at build time
 var version = "dev"
 
 func main() {
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
 	cmd := &cli.Command{
 		Name:      "grimoire",
 		Usage:     "convert a directory to content suitable for LLM interpretation.",
@@ -31,20 +34,13 @@ func main() {
 			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			targetDir := cmd.Args().First()
-			if targetDir == "" {
-				return cli.Exit("Error: You must specify a target directory.\n", 1)
-			}
-
-			return grimoire.Run(&grimoire.Config{
-				TargetDir:  cmd.Args().First(),
-				OutputPath: cmd.String("output"),
-				Force:      cmd.Bool("force"),
-			})
+			return core.Run(
+				config.NewConfigFromCommand(cmd),
+			)
 		},
 	}
 
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
-		log.Fatal(err)
+		log.Fatal().Msg(err.Error())
 	}
 }

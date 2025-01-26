@@ -2,3 +2,5 @@
 coverage.txt
 coverage.html
 dist/
+.idea
+.vscode
