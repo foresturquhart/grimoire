@@ -18,7 +18,7 @@ var DefaultAllowedFileExtensions = []string{
 	"xml", "sql", "htaccess",
 
 	// Documentation and markup
-	"md", "markdown", "txt", "graphql", "proto", "prisma", "dhall",
+	"md", "mdx", "markdown", "txt", "graphql", "proto", "prisma", "dhall",
 
 	// Build and project files
 	"gitignore", "lock", "gradle", "pom", "sbt", "gemspec", "podspec", "rake",
