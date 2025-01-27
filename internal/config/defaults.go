@@ -11,7 +11,7 @@ var DefaultAllowedFileExtensions = []string{
 
 	// Web and frontend files
 	"html", "css", "sass", "scss", "js", "ts", "jsx", "tsx", "vue", "svelte",
-	"haml", "hbs", "jade", "less", "coffee",
+	"haml", "hbs", "jade", "less", "coffee", "astro",
 
 	// Configuration and data files
 	"toml", "json", "yaml", "yml", "ini", "conf", "cfg", "properties", "env",
