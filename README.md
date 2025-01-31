@@ -34,12 +34,12 @@ grimoire -o output.md .
 The easiest way to install Grimoire is by downloading a pre-compiled binary from the [releases page](https://github.com/foresturquhart/grimoire/releases).
 
 1. Visit the [releases page](https://github.com/foresturquhart/grimoire/releases).
-2. Download the appropriate archive for your system (e.g., `grimoire-1.1.0-linux-amd64.tar.gz` or `grimoire-1.1.0-darwin-arm64.tar.gz`).
+2. Download the appropriate archive for your system (e.g., `grimoire-1.1.2-linux-amd64.tar.gz` or `grimoire-1.1.2-darwin-arm64.tar.gz`).
 3. Extract the archive to retrieve the `grimoire` executable.
 4. Move the `grimoire` executable to a directory in your system's `PATH` (e.g., `/usr/local/bin` or `~/.local/bin`). You may need to use `sudo` for system-wide locations:
    ```bash
-   tar -xzf grimoire-1.1.0-linux-amd64.tar.gz
-   cd grimoire-1.1.0-linux-amd64
+   tar -xzf grimoire-1.1.2-linux-amd64.tar.gz
+   cd grimoire-1.1.2-linux-amd64
    sudo mv grimoire /usr/local/bin/
    ```
 5. Verify the installation:
@@ -116,6 +116,8 @@ Grimoire processes files with specific extensions. You can customize these by mo
 
 Files and directories matching patterns in the `DefaultIgnoredPathPatterns` constant are excluded from processing. This includes temporary files, build artifacts, and version control directories.
 
+In addition, Grimoire honors ignore files located within the target directory. It supports both the traditional `.gitignore` and the new `.grimoireignore`. These files allow you to specify additional ignore rules on a per-directory basis. The rules defined in these files follow the same syntax as Git ignore rules, giving you fine-grained control over which files and directories should be omitted during the conversion process.
+
 ## Contributing
 
 Contributions are welcome! To get started:
@@ -143,7 +145,6 @@ Grimoire is licensed under the [MIT License](LICENSE).
 
 Grimoire uses the following libraries:
 
-- [gocodewalker](https://github.com/boyter/gocodewalker) for efficient file traversal.
 - [zerolog](https://github.com/rs/zerolog) for structured logging.
 
 ## Feedback and Support

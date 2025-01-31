@@ -18,22 +18,10 @@ func Run(cfg *config.Config) error {
 	// Create a new walker to recursively find and filter files in TargetDir.
 	walker := NewDefaultWalker(cfg.TargetDir, cfg.AllowedFileExtensions, cfg.IgnoredPathRegexes, cfg.OutputFile)
 
-	// Start the walker. If it can't start (e.g., invalid directory), return an error.
-	if err := walker.Start(); err != nil {
-		return fmt.Errorf("failed to start walker: %w", err)
-	}
-
-	// We handle walker errors concurrently, logging them as warnings.
-	go func() {
-		for werr := range walker.Errors() {
-			log.Warn().Err(werr).Msg("File walking error")
-		}
-	}()
-
-	// Collect files from walker.Files() until it's closed.
-	var files []string
-	for path := range walker.Files() {
-		files = append(files, path)
+	// Recursively find and filter files in TargetDir, returning a slice of string paths.
+	files, err := walker.Walk()
+	if err != nil {
+		return fmt.Errorf("ferror walking target directory: %w", err)
 	}
 
 	log.Info().Msgf("Found %d files in %s", len(files), cfg.TargetDir)
@@ -57,11 +45,8 @@ func Run(cfg *config.Config) error {
 		}
 	}
 
-	// Determine where to write output. If cfg.ShouldWriteFile(), create the file,
-	// otherwise use stdout.
+	// Determine where to write output. If cfg.ShouldWriteFile(), create the file, otherwise use stdout.
 	var writer *os.File
-	var err error
-
 	if cfg.ShouldWriteFile() {
 		writer, err = os.Create(cfg.OutputFile)
 		if err != nil {

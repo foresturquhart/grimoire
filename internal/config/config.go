@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 // Config holds all configuration data needed to run the application.
@@ -24,7 +25,7 @@ type Config struct {
 	Force bool
 
 	// AllowedFileExtensions is the list of file extensions that the walker should consider.
-	AllowedFileExtensions []string
+	AllowedFileExtensions map[string]bool
 
 	// IgnoredPathRegexes is a set of compiled regex patterns for ignoring certain paths.
 	IgnoredPathRegexes []*regexp.Regexp
@@ -71,6 +72,14 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 	allowedFileExtensions := DefaultAllowedFileExtensions
 	ignoredPathPatterns := DefaultIgnoredPathPatterns
 
+	allowedFileExtensionsMap := make(map[string]bool)
+	for _, ext := range allowedFileExtensions {
+		if !strings.HasPrefix(ext, ".") {
+			ext = "." + ext
+		}
+		allowedFileExtensionsMap[ext] = true
+	}
+
 	// Compile the ignored path regexes.
 	ignoredPathRegexes, err := compileRegexes(ignoredPathPatterns)
 	if err != nil {
@@ -81,7 +90,7 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 		TargetDir:             targetDir,
 		OutputFile:            outputFile,
 		Force:                 force,
-		AllowedFileExtensions: allowedFileExtensions,
+		AllowedFileExtensions: allowedFileExtensionsMap,
 		IgnoredPathRegexes:    ignoredPathRegexes,
 	}
 

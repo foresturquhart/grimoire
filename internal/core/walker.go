@@ -1,139 +1,143 @@
 package core
 
 import (
-	"github.com/boyter/gocodewalker"
+	"fmt"
+	"github.com/rs/zerolog/log"
+	gitignore "github.com/sabhiram/go-gitignore"
+	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
-	"sync"
 )
 
-// Walker defines the behavior for walking files in a directory.
-// Implementations return file paths via Files() and send errors to Errors().
+// Walker defines an interface for traversing directories and returning a list of file paths.
 type Walker interface {
-	// Start initiates the file walking process.
-	// If the walker cannot start (e.g., invalid directory), it returns an error.
-	Start() error
-
-	// Files returns a channel that emits file paths discovered during the walk.
-	Files() <-chan string
-
-	// Errors returns a channel that emits errors encountered during the walk.
-	Errors() <-chan error
+	Walk() ([]string, error)
 }
 
-// DefaultWalker is an implementation of Walker that uses the gocodewalker library.
-// It wraps gocodewalker.FileWalker and provides filtering for ignored paths.
+// DefaultWalker is a concrete implementation of Walker that traverses a directory tree
+// starting at targetDir, while filtering files based on allowed extensions, ignored path patterns,
+// and ignore files (.gitignore and .grimoireignore). It also excludes a specific output file.
 type DefaultWalker struct {
-	walker *gocodewalker.FileWalker
-
-	// filesChan emits the final list of file paths that pass filtering.
-	filesChan chan string
-
-	// errorsChan emits errors encountered during the walk.
-	errorsChan chan error
-
-	// fileListQueue is the channel that gocodewalker writes *gocodewalker.File into.
-	fileListQueue chan *gocodewalker.File
-
-	// targetDir is the base directory from which we walk.
+	// targetDir is the base directory from which we begin walking.
 	targetDir string
 
-	// outputFile is the output file which should be excluded.
+	// outputFile is the absolute path of the file to exclude from the results.
 	outputFile string
 
-	// ignoredPathRegexes is a list of regex patterns representing ignored paths.
-	ignoredPathRegexes []*regexp.Regexp
+	// allowedFileExtensions is a set of allowed file extensions.
+	allowedFileExtensions map[string]bool
 
-	// wg ensures our bridging goroutine completes before we close channels.
-	wg sync.WaitGroup
+	// ignoredPathRegexes is a slice of compiled regular expressions for paths that should be ignored.
+	ignoredPathRegexes []*regexp.Regexp
 }
 
-// NewDefaultWalker configures and returns a new DefaultWalker.
-func NewDefaultWalker(targetDir string, allowedFileExtensions []string, ignoredPathRegexes []*regexp.Regexp, outputFile string) *DefaultWalker {
-	fileListQueue := make(chan *gocodewalker.File, 100)
-
-	w := gocodewalker.NewFileWalker(targetDir, fileListQueue)
-	w.AllowListExtensions = allowedFileExtensions
-	w.CustomIgnore = []string{".grimoireignore"}
-
+// NewDefaultWalker constructs and returns a new DefaultWalker configured with the given parameters.
+func NewDefaultWalker(targetDir string, allowedFileExtensions map[string]bool, ignoredPathRegexes []*regexp.Regexp, outputFile string) *DefaultWalker {
 	return &DefaultWalker{
-		walker:             w,
-		filesChan:          make(chan string),
-		errorsChan:         make(chan error),
-		fileListQueue:      fileListQueue,
-		targetDir:          targetDir,
-		outputFile:         outputFile,
-		ignoredPathRegexes: ignoredPathRegexes,
+		targetDir:             targetDir,
+		allowedFileExtensions: allowedFileExtensions,
+		ignoredPathRegexes:    ignoredPathRegexes,
+		outputFile:            outputFile,
 	}
 }
 
-// Start begins the file walking process.
-func (dw *DefaultWalker) Start() error {
-	// Set an error handler so gocodewalker sends errors to our channel.
-	dw.walker.SetErrorHandler(func(err error) bool {
-		dw.errorsChan <- err
+// Walk initiates a recursive traversal starting at targetDir.
+// It returns a slice of file paths (relative to targetDir) that meet the specified filtering criteria.
+func (dw *DefaultWalker) Walk() ([]string, error) {
+	var files []string
+	// Start traversal with no inherited ignore rules.
+	if err := dw.traverse(dw.targetDir, nil, &files); err != nil {
+		return nil, fmt.Errorf("directory traversal failed: %w", err)
+	}
+	return files, nil
+}
 
-		// Continue walking despite the error.
-		return true
-	})
+// traverse walks the directory tree starting at the given directory.
+// It accumulates ignore rules from any local .gitignore and .grimoireignore files,
+// applies the allowed extension and ignored path regex filters,
+// and appends any qualifying file paths (relative to targetDir) to the files slice.
+func (dw *DefaultWalker) traverse(dir string, inheritedIgnores []*gitignore.GitIgnore, files *[]string) error {
+	// Start with the ignore rules inherited from parent directories.
+	currentIgnores := append([]*gitignore.GitIgnore{}, inheritedIgnores...)
 
-	// Launch a goroutine to bridge *gocodewalker.File to string paths.
-	dw.wg.Add(1)
-	go func() {
-		defer dw.wg.Done()
+	// Define the names of local ignore files to check.
+	ignoreFilenames := []string{".gitignore", ".grimoireignore"}
 
-		// Close filesChan when we're done draining fileListQueue.
-		defer close(dw.filesChan)
-
-		for fileEntry := range dw.fileListQueue {
-			// Exclude the current output file, if set.
-			if dw.outputFile != "" && dw.outputFile == fileEntry.Location {
-				continue
-			}
-
-			// Compute a relative path for filtering.
-			relPath := strings.TrimPrefix(fileEntry.Location, dw.targetDir)
-			relPath = strings.TrimPrefix(relPath, string(filepath.Separator))
-
-			// Only emit file paths that are not ignored.
-			if shouldInclude(relPath, dw.ignoredPathRegexes) {
-				dw.filesChan <- relPath
+	// For each ignore file, if it exists in the current directory, compile and add its rules.
+	for _, ignoreFilename := range ignoreFilenames {
+		ignorePath := filepath.Join(dir, ignoreFilename)
+		if info, err := os.Stat(ignorePath); err == nil && !info.IsDir() {
+			if gi, err := gitignore.CompileIgnoreFile(ignorePath); err == nil {
+				currentIgnores = append(currentIgnores, gi)
+			} else {
+				log.Warn().Err(err).Msgf("Error parsing ignore file at %s", ignorePath)
 			}
 		}
-	}()
+	}
 
-	if err := dw.walker.Start(); err != nil {
+	// Read all entries (files and directories) in the current directory.
+	entries, err := os.ReadDir(dir)
+	if err != nil {
 		return err
 	}
 
-	return nil
-}
+	// Process each entry in the directory.
+	for _, entry := range entries {
+		// Compute the full path of the entry.
+		fullPath := filepath.Join(dir, entry.Name())
 
-// Files returns a read-only channel that emits file paths as strings.
-func (dw *DefaultWalker) Files() <-chan string {
-	return dw.filesChan
-}
+		// Calculate the relative path from targetDir. This will be used for both filtering and output.
+		relPath, err := filepath.Rel(dw.targetDir, fullPath)
+		if err != nil {
+			// If there is an error, fall back to using the full path.
+			relPath = fullPath
+		}
+		// Normalize the relative path to use forward slashes.
+		relPath = filepath.ToSlash(relPath)
 
-// Errors returns a read-only channel that emits errors encountered during the walk.
-func (dw *DefaultWalker) Errors() <-chan error {
-	return dw.errorsChan
-}
+		// Exclude the specific output file from being processed.
+		if fullPath == dw.outputFile {
+			continue
+		}
 
-// Close waits for the bridging goroutine to finish and then closes errorsChan.
-// Consumers can call this after they've drained Files() to fully clean up.
-func (dw *DefaultWalker) Close() {
-	dw.wg.Wait()
-	close(dw.errorsChan)
-}
+		// Check if the relative path matches any of the default ignored regex patterns.
+		skipByPattern := false
+		for _, r := range dw.ignoredPathRegexes {
+			if r.MatchString(relPath) {
+				skipByPattern = true
+				break
+			}
+		}
+		if skipByPattern {
+			continue
+		}
 
-// shouldInclude checks if relPath is NOT matched by any of the ignored regex patterns.
-// If none match, the path should be included in the results.
-func shouldInclude(relPath string, ignoredRegexes []*regexp.Regexp) bool {
-	for _, re := range ignoredRegexes {
-		if re.MatchString(relPath) {
-			return false
+		// Check the cumulative ignore rules (from .gitignore and .grimoireignore files).
+		skipByGitignore := false
+		for _, gi := range currentIgnores {
+			if gi.MatchesPath(relPath) {
+				skipByGitignore = true
+				break
+			}
+		}
+		if skipByGitignore {
+			continue
+		}
+
+		// If the entry is a directory, recursively traverse it.
+		if entry.IsDir() {
+			if err := dw.traverse(fullPath, currentIgnores, files); err != nil {
+				return err
+			}
+		} else {
+			// For files, check whether their extension is allowed.
+			ext := filepath.Ext(entry.Name())
+			if dw.allowedFileExtensions[ext] {
+				// Append the file's relative path to the list.
+				*files = append(*files, relPath)
+			}
 		}
 	}
-	return true
+
+	return nil
 }
