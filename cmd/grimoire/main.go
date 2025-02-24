@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"os"
+
 	"github.com/foresturquhart/grimoire/internal/config"
 	"github.com/foresturquhart/grimoire/internal/core"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v3"
-	"os"
 )
 
 // Version is injected at build time
@@ -31,6 +32,19 @@ func main() {
 				Name:    "force",
 				Aliases: []string{"f"},
 				Usage:   "Overwrite existing file without prompt.",
+			},
+			&cli.BoolFlag{
+				Name:  "no-tree",
+				Usage: "Disable directory tree display at the beginning of output.",
+			},
+			&cli.BoolFlag{
+				Name:  "no-sort",
+				Usage: "Disable sorting files by Git commit frequency.",
+			},
+			&cli.StringFlag{
+				Name:  "format",
+				Usage: "Output format (md, xml, or txt). Defaults to md.",
+				Value: "md",
 			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {

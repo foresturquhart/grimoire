@@ -2,12 +2,13 @@ package config
 
 import (
 	"fmt"
-	"github.com/rs/zerolog/log"
-	"github.com/urfave/cli/v3"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/rs/zerolog/log"
+	"github.com/urfave/cli/v3"
 )
 
 // Config holds all configuration data needed to run the application.
@@ -23,6 +24,15 @@ type Config struct {
 
 	// Force indicates whether existing output files should be overwritten.
 	Force bool
+
+	// ShowTree indicates whether to display a directory tree at the beginning of output.
+	ShowTree bool
+
+	// DisableSort indicates whether to skip sorting files by Git commit frequency.
+	DisableSort bool
+
+	// Format specifies the output format (e.g., "md" or "xml")
+	Format string
 
 	// AllowedFileExtensions is the list of file extensions that the walker should consider.
 	AllowedFileExtensions map[string]bool
@@ -60,6 +70,31 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 	// Fetch value of force command line flag.
 	force := cmd.Bool("force")
 
+	// Check if tree display is disabled (default is to show tree)
+	showTree := !cmd.Bool("no-tree")
+
+	// Check if sorting is disabled
+	disableSort := cmd.Bool("no-sort")
+
+	// Get output format
+	format := cmd.String("format")
+	// Validate and normalize format
+	format = strings.ToLower(format)
+	switch format {
+	case "md", "markdown":
+		format = "md"
+	case "xml":
+		format = "xml"
+	case "txt", "text", "plain", "plaintext":
+		format = "txt"
+	default:
+		if format != "" {
+			log.Fatal().Msgf("Unsupported format: %s", format)
+		}
+		// Default to markdown if no format specified
+		format = "md"
+	}
+
 	// If an output file is specified, and we are not forcing an overwrite,
 	// check if the file already exists.
 	if outputFile != "" && !force {
@@ -90,6 +125,9 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 		TargetDir:             targetDir,
 		OutputFile:            outputFile,
 		Force:                 force,
+		ShowTree:              showTree,
+		DisableSort:           disableSort,
+		Format:                format,
 		AllowedFileExtensions: allowedFileExtensionsMap,
 		IgnoredPathRegexes:    ignoredPathRegexes,
 	}
