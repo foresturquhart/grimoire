@@ -36,9 +36,23 @@ grimoire --format txt -o output.txt .
 
 * Git (required for repositories using Git-based sorting).
 
-### Recommended: Download Pre-compiled Binary
+### Quickest: One-line Installation Script
 
-The easiest way to install Grimoire is by downloading a pre-compiled binary from the [releases page](https://github.com/foresturquhart/grimoire/releases).
+The easiest way to install Grimoire is with our automatic installation script:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/foresturquhart/grimoire/main/install.sh | bash
+```
+
+This script automatically:
+- Detects your operating system and architecture
+- Downloads the appropriate binary for your system
+- Installs it to `/usr/local/bin` (or `~/.local/bin` if you don't have sudo access)
+- Makes the binary executable
+
+### Alternative: Download Pre-compiled Binary
+
+You can also manually download a pre-compiled binary from the [releases page](https://github.com/foresturquhart/grimoire/releases).
 
 1. Visit the [releases page](https://github.com/foresturquhart/grimoire/releases).
 2. Download the appropriate archive for your system (e.g., `grimoire-1.1.3-linux-amd64.tar.gz` or `grimoire-1.1.3-darwin-arm64.tar.gz`).
