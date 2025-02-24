@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # Define variables
@@ -56,10 +56,16 @@ esac
 
 echo "Detected OS: ${OS}, Architecture: ${ARCH}"
 
+# Check if curl is available
+if ! command -v curl &> /dev/null; then
+  echo "Error: curl is required but not installed. Please install curl and try again."
+  exit 1
+fi
+
 # Fetch the latest release information
 echo "Fetching latest release information..."
 RELEASE_INFO=$(curl -s -H "User-Agent: ${USER_AGENT}" "${LATEST_RELEASE_URL}")
-VERSION=$(echo "${RELEASE_INFO}" | grep -o '"tag_name":"[^"]*"' | sed -E 's/"tag_name":"([^"]*)"/\1/')
+VERSION=$(echo "${RELEASE_INFO}" | grep -o '"tag_name":"[^"]*"' | sed 's/"tag_name":"//;s/"//g')
 
 if [ -z "${VERSION}" ]; then
   echo "Error: Could not extract version from release info."
@@ -70,44 +76,48 @@ echo "Latest version: ${VERSION}"
 
 # Create asset name pattern based on the naming convention in .goreleaser.yml
 ASSET_NAME="grimoire-${VERSION#v}-${OS}-${ARCH}.${EXT}"
-echo "Looking for asset: ${ASSET_NAME}"
 
-# Extract the download URL for the specific asset
-DOWNLOAD_URL=$(echo "${RELEASE_INFO}" | grep -o "\"browser_download_url\":\"[^\"]*${ASSET_NAME}\"" | sed -E 's/"browser_download_url":"([^"]*)"/\1/')
+# Extract the download URL for the specific asset - using exact matching
+DOWNLOAD_URL=""
+while read -r url; do
+  # Extract just the filename from the URL
+  filename=$(basename "$url")
+  if [ "$filename" = "$ASSET_NAME" ]; then
+    DOWNLOAD_URL="$url"
+    break
+  fi
+done < <(echo "$RELEASE_INFO" | grep -o '"browser_download_url":"[^"]*"' | sed 's/"browser_download_url":"//;s/"//g')
 
 if [ -z "${DOWNLOAD_URL}" ]; then
-  echo "Error: Could not find download URL for ${ASSET_NAME}."
-  echo "Available assets:"
-  echo "${RELEASE_INFO}" | grep -o '"browser_download_url":"[^"]*"' | sed -E 's/"browser_download_url":"([^"]*)"/\1/'
+  echo "Error: Could not find download URL for Grimoire ${VERSION} on ${OS} ${ARCH}."
   exit 1
 fi
 
-echo "Download URL: ${DOWNLOAD_URL}"
-
 # Create a temporary directory for downloading and extracting
-echo "Downloading Grimoire ${VERSION} for ${OS}-${ARCH}..."
+echo "Downloading Grimoire ${VERSION} for ${OS} ${ARCH}..."
 curl -L -o "${TMP_DIR}/${ASSET_NAME}" "${DOWNLOAD_URL}"
 
 # Extract the archive
 echo "Extracting archive..."
 cd "${TMP_DIR}"
 if [ "${EXT}" = "zip" ]; then
+  # Check if unzip is available
+  if ! command -v unzip &> /dev/null; then
+    echo "Error: unzip is required but not installed. Please install unzip and try again."
+    exit 1
+  fi
   unzip -q "${ASSET_NAME}"
 else
+  # tar should be available on all POSIX systems
   tar -xzf "${ASSET_NAME}"
 fi
 
-# Find the binary in the extracted directory
-# According to .goreleaser.yml, it should be in a directory with the same name as the project
-cd grimoire-*
-BINARY_PATH="grimoire"
-if [ "${OS}" = "windows" ]; then
-  BINARY_PATH="grimoire.exe"
-fi
+# Find the grimoire binary after extraction
+echo "Locating binary..."
+BINARY_PATH=$(find "${TMP_DIR}" -type f -name "grimoire" -o -name "grimoire.exe" | head -n 1)
 
-if [ ! -f "${BINARY_PATH}" ]; then
+if [ -z "${BINARY_PATH}" ]; then
   echo "Error: Could not find grimoire binary in the extracted archive."
-  find . -type f | sort
   exit 1
 fi
 
