@@ -60,12 +60,12 @@ This script automatically:
 You can also manually download a pre-compiled binary from the [releases page](https://github.com/foresturquhart/grimoire/releases).
 
 1. Visit the [releases page](https://github.com/foresturquhart/grimoire/releases).
-2. Download the appropriate archive for your system (e.g., `grimoire-1.1.4-linux-amd64.tar.gz` or `grimoire-1.1.4-darwin-arm64.tar.gz`).
+2. Download the appropriate archive for your system (e.g., `grimoire-1.1.5-linux-amd64.tar.gz` or `grimoire-1.1.5-darwin-arm64.tar.gz`).
 3. Extract the archive to retrieve the `grimoire` executable.
 4. Move the `grimoire` executable to a directory in your system's `PATH` (e.g., `/usr/local/bin` or `~/.local/bin`). You may need to use `sudo` for system-wide locations:
    ```bash
-   tar -xzf grimoire-1.1.4-linux-amd64.tar.gz
-   cd grimoire-1.1.4-linux-amd64
+   tar -xzf grimoire-1.1.5-linux-amd64.tar.gz
+   cd grimoire-1.1.5-linux-amd64
    sudo mv grimoire /usr/local/bin/
    ```
 5. Verify the installation:
