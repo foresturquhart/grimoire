@@ -14,6 +14,18 @@ Grimoire is a command-line tool that converts the contents of a directory into s
 
 ## Quick Start
 
+### Install Grimoire
+
+The fastest way to get started is with our one-line installation script:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/foresturquhart/grimoire/main/install.sh | bash
+```
+
+This script automatically detects your OS and architecture, downloads the appropriate binary, and installs it to your PATH.
+
+### Basic Usage
+
 ```bash
 # Convert current directory to Markdown and copy to clipboard (macOS)
 grimoire . | pbcopy
