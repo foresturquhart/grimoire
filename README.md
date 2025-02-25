@@ -6,7 +6,6 @@
 
 <hr />
 
-[![checks](https://badgen.net/github/checks/foresturquhart/grimoire)](https://github.com/foresturquhart/grimoire/actions)
 [![go](https://badgen.net/static/go/1.24.0)](https://go.dev/)
 [![license](https://badgen.net/github/license/foresturquhart/grimoire)](https://github.com/foresturquhart/grimoire/blob/main/LICENSE)
 [![release](https://badgen.net/github/release/foresturquhart/grimoire/stable)](https://github.com/foresturquhart/grimoire/releases)
