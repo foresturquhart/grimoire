@@ -19,6 +19,9 @@ grimoire --format xml -o output.xml .
 
 # Convert current directory to plain text format
 grimoire --format txt -o output.txt .
+
+# Convert directory with secret detection and redaction
+grimoire --redact-secrets -o output.md .
 ```
 
 ## Features
@@ -28,6 +31,8 @@ grimoire --format txt -o output.txt .
 * **Content Filtering:** Skips ignored directories, temporary files, and patterns defined in the configuration.
 * **Directory Tree Visualization:** Includes an optional directory structure representation at the beginning of the output.
 * **Git Integration:** Prioritizes files by commit frequency when working within a Git repository.
+* **Secret Detection:** Scans files for potential secrets or sensitive information to prevent accidental exposure.
+* **Secret Redaction:** Optionally redacts detected secrets in the output while preserving the overall code structure.
 * **Flexible Output:** Supports output to stdout or a specified file.
 
 ## Installation
@@ -55,12 +60,12 @@ This script automatically:
 You can also manually download a pre-compiled binary from the [releases page](https://github.com/foresturquhart/grimoire/releases).
 
 1. Visit the [releases page](https://github.com/foresturquhart/grimoire/releases).
-2. Download the appropriate archive for your system (e.g., `grimoire-1.1.3-linux-amd64.tar.gz` or `grimoire-1.1.3-darwin-arm64.tar.gz`).
+2. Download the appropriate archive for your system (e.g., `grimoire-1.1.4-linux-amd64.tar.gz` or `grimoire-1.1.4-darwin-arm64.tar.gz`).
 3. Extract the archive to retrieve the `grimoire` executable.
 4. Move the `grimoire` executable to a directory in your system's `PATH` (e.g., `/usr/local/bin` or `~/.local/bin`). You may need to use `sudo` for system-wide locations:
    ```bash
-   tar -xzf grimoire-1.1.3-linux-amd64.tar.gz
-   cd grimoire-1.1.3-linux-amd64
+   tar -xzf grimoire-1.1.4-linux-amd64.tar.gz
+   cd grimoire-1.1.4-linux-amd64
    sudo mv grimoire /usr/local/bin/
    ```
 5. Verify the installation:
@@ -113,6 +118,8 @@ grimoire [options] <target directory>
 - `--format <format>`: Specify the output format. Options are `md` (or `markdown`), `xml`, and `txt` (or `text`, `plain`, `plaintext`). Defaults to `md`.
 - `--no-tree`: Disable the directory tree visualization at the beginning of the output.
 - `--no-sort`: Disable sorting files by Git commit frequency.
+- `--ignore-secrets`: Proceed with output generation even if secrets are detected.
+- `--redact-secrets`: Redact detected secrets in output rather than failing.
 - `--version`: Display the current version.
 
 ### Examples
@@ -137,6 +144,10 @@ grimoire [options] <target directory>
    ```bash
    grimoire --format txt --no-sort -o output.txt ./myproject
    ```
+6. Scan for secrets and redact them in the output:
+   ```bash
+   grimoire --redact-secrets -o output.md ./myproject
+   ```
 
 ## Configuration
 
@@ -159,6 +170,24 @@ Grimoire supports three output formats:
 3. **Plain Text (txt)** - Uses separator lines to distinguish between files.
 
 Each format includes metadata, a summary section, an optional directory tree, and the content of all files.
+
+## Secret Detection
+
+Grimoire includes built-in secret detection powered by [gitleaks](https://github.com/gitleaks/gitleaks) to help prevent accidentally sharing sensitive information when using the generated output with LLMs or other tools.
+
+By default, Grimoire scans for a wide variety of potential secrets including:
+
+- API keys and tokens (AWS, GitHub, GitLab, etc.)
+- Private keys (RSA, SSH, PGP, etc.)
+- Authentication credentials
+- Service-specific tokens (Stripe, Slack, Twilio, etc.)
+
+The secret detection behavior can be controlled with the following flags:
+
+- `--ignore-secrets`: Continues with output generation even if secrets are detected (logs warnings)
+- `--redact-secrets`: Automatically redacts any detected secrets with the format `[REDACTED SECRET: description]`
+
+If a secret is detected and neither of the above flags are specified, Grimoire will abort the operation and display a warning message, helping prevent accidental exposure of sensitive information.
 
 ## Contributing
 
@@ -188,6 +217,9 @@ Grimoire is licensed under the [MIT License](LICENSE).
 Grimoire uses the following libraries:
 
 - [zerolog](https://github.com/rs/zerolog) for structured logging.
+- [gitleaks](https://github.com/zricethezav/gitleaks) for secret detection and scanning.
+- [go-gitignore](https://github.com/sabhiram/go-gitignore) for handling ignore patterns.
+- [urfave/cli](https://github.com/urfave/cli) for command-line interface.
 
 ## Feedback and Support
 

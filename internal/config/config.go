@@ -39,6 +39,12 @@ type Config struct {
 
 	// IgnoredPathRegexes is a set of compiled regex patterns for ignoring certain paths.
 	IgnoredPathRegexes []*regexp.Regexp
+
+	// IgnoreSecrets indicates whether to proceed with output generation even if secrets are detected.
+	IgnoreSecrets bool
+
+	// RedactSecrets indicates whether to redact detected secrets in the output.
+	RedactSecrets bool
 }
 
 // NewConfigFromCommand constructs a Config by extracting relevant values from
@@ -75,6 +81,12 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 
 	// Check if sorting is disabled
 	disableSort := cmd.Bool("no-sort")
+
+	// Check if we should ignore detected secrets
+	ignoreSecrets := cmd.Bool("ignore-secrets")
+
+	// Check if we should redact detected secrets
+	redactSecrets := cmd.Bool("redact-secrets")
 
 	// Get output format
 	format := cmd.String("format")
@@ -130,6 +142,8 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 		Format:                format,
 		AllowedFileExtensions: allowedFileExtensionsMap,
 		IgnoredPathRegexes:    ignoredPathRegexes,
+		IgnoreSecrets:         ignoreSecrets,
+		RedactSecrets:         redactSecrets,
 	}
 
 	return cfg

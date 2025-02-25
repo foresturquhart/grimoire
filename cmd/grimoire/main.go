@@ -41,6 +41,14 @@ func main() {
 				Name:  "no-sort",
 				Usage: "Disable sorting files by Git commit frequency.",
 			},
+			&cli.BoolFlag{
+				Name:  "ignore-secrets",
+				Usage: "Proceed with output generation even if secrets are detected.",
+			},
+			&cli.BoolFlag{
+				Name:  "redact-secrets",
+				Usage: "Redact detected secrets in output rather than failing.",
+			},
 			&cli.StringFlag{
 				Name:  "format",
 				Usage: "Output format (md, xml, or txt). Defaults to md.",
