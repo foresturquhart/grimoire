@@ -1,6 +1,17 @@
-# Grimoire
+<div align="center">
+  <a href="https://github.com/foresturquhart/grimoire">
+    <img src=".github/grimoire.png" alt="Grimoire" width="500" height="auto" />
+  </a>
+</div>
 
-Grimoire is a command-line tool that converts the contents of a directory into structured output formats optimized for interpretation by large language models (LLMs). It is lightweight, highly configurable, and user-friendly.
+<hr />
+
+[![checks](https://badgen.net/github/checks/foresturquhart/grimoire)](https://github.com/foresturquhart/grimoire/actions)
+[![go](https://badgen.net/static/go/1.24.0)](https://go.dev/)
+[![license](https://badgen.net/github/license/foresturquhart/grimoire)](https://github.com/foresturquhart/grimoire/blob/main/LICENSE)
+[![release](https://badgen.net/github/release/foresturquhart/grimoire/stable)](https://github.com/foresturquhart/grimoire/releases)
+
+Grimoire is a command-line tool that converts the contents of a directory into structured output formats optimized for interpretation by Large Language Models (LLMs) like Claude, ChatGPT, Gemini, DeepSeek, Llama, Grok, and more. It is lightweight, highly configurable, and user-friendly.
 
 ## Quick Start
 
