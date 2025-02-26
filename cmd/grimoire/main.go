@@ -49,6 +49,10 @@ func main() {
 				Name:  "redact-secrets",
 				Usage: "Redact detected secrets in output rather than failing.",
 			},
+			&cli.BoolFlag{
+				Name:  "skip-token-count",
+				Usage: "Skip counting output tokens.",
+			},
 			&cli.StringFlag{
 				Name:  "format",
 				Usage: "Output format (md, xml, or txt). Defaults to md.",

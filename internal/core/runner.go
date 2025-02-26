@@ -6,6 +6,9 @@ import (
 	"path/filepath"
 
 	"github.com/foresturquhart/grimoire/internal/secrets"
+	"github.com/foresturquhart/grimoire/internal/tokens"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 
 	"github.com/foresturquhart/grimoire/internal/config"
 	"github.com/foresturquhart/grimoire/internal/serializer"
@@ -127,6 +130,9 @@ func Run(cfg *config.Config) error {
 		writer = os.Stdout
 	}
 
+	// Create a token capturing writer that wraps the actual writer
+	captureWriter := tokens.NewCaptureWriter(writer)
+
 	// Create a serializer based on the configured format
 	formatSerializer, err := serializer.NewSerializer(cfg.Format)
 	if err != nil {
@@ -144,8 +150,19 @@ func Run(cfg *config.Config) error {
 	}
 
 	// Serialize files to the configured format
-	if err := formatSerializer.Serialize(writer, cfg.TargetDir, files, cfg.ShowTree, redactionInfo, cfg.LargeFileSizeThreshold); err != nil {
+	if err := formatSerializer.Serialize(captureWriter, cfg.TargetDir, files, cfg.ShowTree, redactionInfo, cfg.LargeFileSizeThreshold); err != nil {
 		return fmt.Errorf("failed to serialize content: %w", err)
+	}
+
+	if !cfg.SkipTokenCount {
+		// Count tokens in the output
+		if err := captureWriter.CountTokens(); err != nil {
+			log.Warn().Err(err).Msg("Failed to count tokens in output")
+		} else {
+			// Log token count information
+			p := message.NewPrinter(language.English)
+			log.Info().Msg(p.Sprintf("Output contains around %d tokens", captureWriter.TokenCount))
+		}
 	}
 
 	// Log where we wrote results, if we wrote to a file.

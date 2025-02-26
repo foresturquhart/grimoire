@@ -45,10 +45,13 @@ type Config struct {
 
 	// RedactSecrets indicates whether to redact detected secrets in the output.
 	RedactSecrets bool
-	
+
 	// LargeFileSizeThreshold defines the size in bytes above which a file is considered "large"
 	// and a warning will be logged. Default is 1MB.
 	LargeFileSizeThreshold int64
+
+	// SkipTokenCount indicates whether to skip counting output tokens.
+	SkipTokenCount bool
 }
 
 // NewConfigFromCommand constructs a Config by extracting relevant values from
@@ -91,6 +94,9 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 
 	// Check if we should redact detected secrets
 	redactSecrets := cmd.Bool("redact-secrets")
+
+	// Check if we should skip counting tokens
+	skipTokenCount := cmd.Bool("skip-token-count")
 
 	// Get output format
 	format := cmd.String("format")
@@ -141,17 +147,18 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 	largeFileSizeThreshold := DefaultLargeFileSizeThreshold
 
 	cfg := &Config{
-		TargetDir:             targetDir,
-		OutputFile:            outputFile,
-		Force:                 force,
-		ShowTree:              showTree,
-		DisableSort:           disableSort,
-		Format:                format,
-		AllowedFileExtensions: allowedFileExtensionsMap,
-		IgnoredPathRegexes:    ignoredPathRegexes,
-		IgnoreSecrets:         ignoreSecrets,
-		RedactSecrets:         redactSecrets,
+		TargetDir:              targetDir,
+		OutputFile:             outputFile,
+		Force:                  force,
+		ShowTree:               showTree,
+		DisableSort:            disableSort,
+		Format:                 format,
+		AllowedFileExtensions:  allowedFileExtensionsMap,
+		IgnoredPathRegexes:     ignoredPathRegexes,
+		IgnoreSecrets:          ignoreSecrets,
+		RedactSecrets:          redactSecrets,
 		LargeFileSizeThreshold: largeFileSizeThreshold,
+		SkipTokenCount:         skipTokenCount,
 	}
 
 	return cfg
