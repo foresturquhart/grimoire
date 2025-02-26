@@ -131,7 +131,13 @@ func Run(cfg *config.Config) error {
 	}
 
 	// Create a token capturing writer that wraps the actual writer
-	captureWriter := tokens.NewCaptureWriter(writer)
+	tokenOpts := &tokens.TokenCounterOptions{
+		Streaming: cfg.TokenCountMode == "fast",
+	}
+	captureWriter, err := tokens.NewCaptureWriter(writer, tokenOpts)
+	if err != nil {
+		return fmt.Errorf("failed to create token counter: %w", err)
+	}
 
 	// Create a serializer based on the configured format
 	formatSerializer, err := serializer.NewSerializer(cfg.Format)
@@ -161,7 +167,11 @@ func Run(cfg *config.Config) error {
 		} else {
 			// Log token count information
 			p := message.NewPrinter(language.English)
-			log.Info().Msg(p.Sprintf("Output contains around %d tokens", captureWriter.TokenCount))
+			mode := "exact"
+			if cfg.TokenCountMode == "fast" {
+				mode = "fast"
+			}
+			log.Info().Msg(p.Sprintf("Output contains around %d tokens (using %s counting)", captureWriter.GetTokenCount(), mode))
 		}
 	}
 

@@ -52,6 +52,9 @@ type Config struct {
 
 	// SkipTokenCount indicates whether to skip counting output tokens.
 	SkipTokenCount bool
+
+	// TokenCountMode specifies how tokens should be counted: "exact" or "fast".
+	TokenCountMode string
 }
 
 // NewConfigFromCommand constructs a Config by extracting relevant values from
@@ -97,6 +100,9 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 
 	// Check if we should skip counting tokens
 	skipTokenCount := cmd.Bool("skip-token-count")
+
+	// Get token counting mode
+	tokenCountMode := cmd.String("token-count-mode")
 
 	// Get output format
 	format := cmd.String("format")
@@ -159,6 +165,7 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 		RedactSecrets:          redactSecrets,
 		LargeFileSizeThreshold: largeFileSizeThreshold,
 		SkipTokenCount:         skipTokenCount,
+		TokenCountMode:         tokenCountMode,
 	}
 
 	return cfg

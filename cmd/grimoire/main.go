@@ -54,6 +54,11 @@ func main() {
 				Usage: "Skip counting output tokens.",
 			},
 			&cli.StringFlag{
+				Name:  "token-count-mode",
+				Usage: "Token counting mode: fast (default) or exact (slower).",
+				Value: "fast",
+			},
+			&cli.StringFlag{
 				Name:  "format",
 				Usage: "Output format (md, xml, or txt). Defaults to md.",
 				Value: "md",
