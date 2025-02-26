@@ -55,6 +55,8 @@ grimoire --redact-secrets -o output.md .
 * **Git Integration:** Prioritizes files by commit frequency when working within a Git repository.
 * **Secret Detection:** Scans files for potential secrets or sensitive information to prevent accidental exposure.
 * **Secret Redaction:** Optionally redacts detected secrets in the output while preserving the overall code structure.
+* **Token Counting:** Estimates the token count of generated output to help manage LLM context limits.
+* **Minified File Detection:** Automatically identifies minified JavaScript and CSS files to warn about high token usage.
 * **Flexible Output:** Supports output to stdout or a specified file.
 
 ## Installation
@@ -82,12 +84,12 @@ This script automatically:
 You can also manually download a pre-compiled binary from the [releases page](https://github.com/foresturquhart/grimoire/releases).
 
 1. Visit the [releases page](https://github.com/foresturquhart/grimoire/releases).
-2. Download the appropriate archive for your system (e.g., `grimoire-1.1.5-linux-amd64.tar.gz` or `grimoire-1.1.5-darwin-arm64.tar.gz`).
+2. Download the appropriate archive for your system (e.g., `grimoire-1.1.6-linux-amd64.tar.gz` or `grimoire-1.1.6-darwin-arm64.tar.gz`).
 3. Extract the archive to retrieve the `grimoire` executable.
 4. Move the `grimoire` executable to a directory in your system's `PATH` (e.g., `/usr/local/bin` or `~/.local/bin`). You may need to use `sudo` for system-wide locations:
    ```bash
-   tar -xzf grimoire-1.1.5-linux-amd64.tar.gz
-   cd grimoire-1.1.5-linux-amd64
+   tar -xzf grimoire-1.1.6-linux-amd64.tar.gz
+   cd grimoire-1.1.6-linux-amd64
    sudo mv grimoire /usr/local/bin/
    ```
 5. Verify the installation:
@@ -142,6 +144,8 @@ grimoire [options] <target directory>
 - `--no-sort`: Disable sorting files by Git commit frequency.
 - `--ignore-secrets`: Proceed with output generation even if secrets are detected.
 - `--redact-secrets`: Redact detected secrets in output rather than failing.
+- `--skip-token-count`: Skip counting output tokens.
+- `--token-count-mode <mode>`: Token counting mode: `fast` (default) or `exact` (slower but more accurate).
 - `--version`: Display the current version.
 
 ### Examples
@@ -170,6 +174,10 @@ grimoire [options] <target directory>
    ```bash
    grimoire --redact-secrets -o output.md ./myproject
    ```
+7. Use exact token counting mode:
+   ```bash
+   grimoire --token-count-mode exact -o output.md ./myproject
+   ```
 
 ## Configuration
 
@@ -181,7 +189,27 @@ Grimoire processes files with specific extensions. You can customize these by mo
 
 Files and directories matching patterns in the `DefaultIgnoredPathPatterns` constant are excluded from processing. This includes temporary files, build artifacts, and version control directories.
 
-In addition, Grimoire honors ignore files located within the target directory. It supports both the traditional `.gitignore` and the new `.grimoireignore`. These files allow you to specify additional ignore rules on a per-directory basis. The rules defined in these files follow the same syntax as Git ignore rules, giving you fine-grained control over which files and directories should be omitted during the conversion process.
+### Custom Ignore Files
+
+Grimoire supports two types of ignore files to specify additional exclusion patterns:
+
+1. **`.gitignore`**: Standard Git ignore files are honored if present in the target directory.
+2. **`.grimoireignore`**: Grimoire-specific ignore files that follow the same syntax as Git ignore files.
+
+These files allow you to specify additional ignore rules on a per-directory basis, giving you fine-grained control over which files and directories should be omitted during the conversion process.
+
+### Large File Handling
+
+By default, Grimoire warns when processing files larger than 1MB. These files are still included in the output, but a warning is logged to alert you about potential performance impacts when feeding the output to an LLM.
+
+### Minified File Detection
+
+Grimoire automatically detects minified JavaScript and CSS files using several heuristics:
+- Excessive line length
+- Low ratio of lines to characters
+- Presence of coding patterns typical in minified files
+
+When a minified file is detected, Grimoire logs a warning, as these files can consume a large number of tokens while providing limited value to the LLM.
 
 ## Output Formats
 
@@ -192,6 +220,17 @@ Grimoire supports three output formats:
 3. **Plain Text (txt)** - Uses separator lines to distinguish between files.
 
 Each format includes metadata, a summary section, an optional directory tree, and the content of all files.
+
+## Token Counting
+
+Grimoire includes built-in token counting to help you manage LLM context limits. The token count is estimated using the same tokenizer used by many LLMs.
+
+Two token counting modes are available:
+
+1. **Fast Mode** (default): Counts tokens in chunks as the output is generated. Slightly less accurate but more efficient for large codebases.
+2. **Exact Mode**: Counts all tokens in the entire output at once. More accurate but can be slower and more memory-intensive for large outputs.
+
+You can disable token counting entirely using the `--skip-token-count` flag.
 
 ## Secret Detection
 
@@ -242,6 +281,7 @@ Grimoire uses the following libraries:
 - [gitleaks](https://github.com/zricethezav/gitleaks) for secret detection and scanning.
 - [go-gitignore](https://github.com/sabhiram/go-gitignore) for handling ignore patterns.
 - [urfave/cli](https://github.com/urfave/cli) for command-line interface.
+- [tiktoken-go](https://github.com/tiktoken-go/tokenizer) for token counting.
 
 ## Feedback and Support
 
