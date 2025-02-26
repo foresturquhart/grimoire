@@ -28,7 +28,9 @@ type Serializer interface {
 	// If showTree is true, it includes a directory tree visualization.
 	// If redactionInfo is not nil, secrets should be redacted from the output.
 	// It returns an error if the serialization process fails.
-	Serialize(writer io.Writer, baseDir string, filePaths []string, showTree bool, redactionInfo *RedactionInfo) error
+	// largeFileSizeThreshold defines the size in bytes above which a file is considered "large"
+	// and a warning will be logged.
+	Serialize(writer io.Writer, baseDir string, filePaths []string, showTree bool, redactionInfo *RedactionInfo, largeFileSizeThreshold int64) error
 }
 
 // NewSerializer creates serializers based on the specified format string

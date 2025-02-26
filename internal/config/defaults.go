@@ -27,6 +27,10 @@ var DefaultAllowedFileExtensions = []string{
 	"sh", "fish", "tf", "tfvars",
 }
 
+// DefaultLargeFileSizeThreshold defines the default size in bytes (1MB) above which
+// a file is considered "large" and a warning will be logged.
+var DefaultLargeFileSizeThreshold int64 = 1024 * 1024
+
 // DefaultIgnoredPathPatterns defines the default path patterns that are excluded from processing.
 // These include directories, build artifacts, caches, and temporary files.
 var DefaultIgnoredPathPatterns = []string{

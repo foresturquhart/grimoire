@@ -143,7 +143,7 @@ func Run(cfg *config.Config) error {
 	}
 
 	// Serialize files to the configured format
-	if err := formatSerializer.Serialize(writer, cfg.TargetDir, files, cfg.ShowTree, redactionInfo); err != nil {
+	if err := formatSerializer.Serialize(writer, cfg.TargetDir, files, cfg.ShowTree, redactionInfo, cfg.LargeFileSizeThreshold); err != nil {
 		return fmt.Errorf("failed to serialize content: %w", err)
 	}
 

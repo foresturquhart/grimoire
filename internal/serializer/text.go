@@ -25,7 +25,9 @@ func NewPlainTextSerializer() *PlainTextSerializer {
 // If reading any file fails, it logs a warning and skips that file.
 // If showTree is true, it includes a directory tree visualization.
 // If redactionInfo is not nil, it redacts secrets from the output.
-func (s *PlainTextSerializer) Serialize(writer io.Writer, baseDir string, filePaths []string, showTree bool, redactionInfo *RedactionInfo) error {
+// largeFileSizeThreshold defines the size in bytes above which a file is considered "large"
+// and a warning will be logged.
+func (s *PlainTextSerializer) Serialize(writer io.Writer, baseDir string, filePaths []string, showTree bool, redactionInfo *RedactionInfo, largeFileSizeThreshold int64) error {
 	// Write the header with timestamp
 	timestamp := time.Now().UTC().Format(time.RFC3339Nano)
 
@@ -93,10 +95,14 @@ func (s *PlainTextSerializer) Serialize(writer io.Writer, baseDir string, filePa
 		}
 
 		// Read and normalize file content
-		content, err := s.readAndNormalizeContent(baseDir, relPath, redactionInfo)
+		content, isLargeFile, err := s.readAndNormalizeContent(baseDir, relPath, redactionInfo, largeFileSizeThreshold)
 		if err != nil {
 			log.Warn().Err(err).Msgf("Skipping file %s due to read error", relPath)
 			continue
+		}
+		
+		if isLargeFile {
+			log.Warn().Msgf("File %s exceeds the large file threshold (%d bytes). Including in output but this may impact performance.", relPath, largeFileSizeThreshold)
 		}
 
 		// Write content with spacing
@@ -160,11 +166,22 @@ func (s *PlainTextSerializer) renderTreeAsPlainText(node *TreeNode, depth int) s
 // readAndNormalizeContent reads a file from baseDir/relPath and normalizes its
 // content by trimming surrounding whitespace and trailing spaces on each line.
 // If redactionInfo is not nil, it redacts secrets from the output.
-func (s *PlainTextSerializer) readAndNormalizeContent(baseDir, relPath string, redactionInfo *RedactionInfo) (string, error) {
+// It also checks if the file exceeds the large file size threshold and returns a flag if it does.
+func (s *PlainTextSerializer) readAndNormalizeContent(baseDir, relPath string, redactionInfo *RedactionInfo, largeFileSizeThreshold int64) (string, bool, error) {
 	fullPath := filepath.Join(baseDir, relPath)
+	
+	// Check file size before reading
+	fileInfo, err := os.Stat(fullPath)
+	if err != nil {
+		return "", false, fmt.Errorf("failed to stat file %s: %w", fullPath, err)
+	}
+	
+	// Check if file exceeds large file threshold
+	isLargeFile := fileInfo.Size() > largeFileSizeThreshold
+	
 	contentBytes, err := os.ReadFile(fullPath)
 	if err != nil {
-		return "", fmt.Errorf("failed to read file %s: %w", fullPath, err)
+		return "", false, fmt.Errorf("failed to read file %s: %w", fullPath, err)
 	}
 
 	// Convert bytes to string and normalize
@@ -179,7 +196,7 @@ func (s *PlainTextSerializer) readAndNormalizeContent(baseDir, relPath string, r
 		}
 	}
 
-	return normalizedContent, nil
+	return normalizedContent, isLargeFile, nil
 }
 
 // normalizeContent trims surrounding whitespace and trailing spaces from each line

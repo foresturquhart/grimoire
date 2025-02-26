@@ -45,6 +45,10 @@ type Config struct {
 
 	// RedactSecrets indicates whether to redact detected secrets in the output.
 	RedactSecrets bool
+	
+	// LargeFileSizeThreshold defines the size in bytes above which a file is considered "large"
+	// and a warning will be logged. Default is 1MB.
+	LargeFileSizeThreshold int64
 }
 
 // NewConfigFromCommand constructs a Config by extracting relevant values from
@@ -133,6 +137,9 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 		log.Fatal().Err(err).Msgf("Failed to compile ignored path pattern regexes")
 	}
 
+	// Use the default large file size threshold
+	largeFileSizeThreshold := DefaultLargeFileSizeThreshold
+
 	cfg := &Config{
 		TargetDir:             targetDir,
 		OutputFile:            outputFile,
@@ -144,6 +151,7 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 		IgnoredPathRegexes:    ignoredPathRegexes,
 		IgnoreSecrets:         ignoreSecrets,
 		RedactSecrets:         redactSecrets,
+		LargeFileSizeThreshold: largeFileSizeThreshold,
 	}
 
 	return cfg
