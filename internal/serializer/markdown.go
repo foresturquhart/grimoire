@@ -95,9 +95,14 @@ func (s *MarkdownSerializer) Serialize(writer io.Writer, baseDir string, filePat
 			log.Warn().Err(err).Msgf("Skipping file %s due to read error", relPath)
 			continue
 		}
-		
+
 		if isLargeFile {
 			log.Warn().Msgf("File %s exceeds the large file threshold (%d bytes). Including in output but this may impact performance.", relPath, largeFileSizeThreshold)
+		}
+
+		// Check if the file is minified (only applicable file type)
+		if IsMinifiedFile(content, relPath, DefaultMinifiedFileThresholds) {
+			log.Warn().Msgf("File %s appears to be minified. Consider excluding it to reduce token counts.", relPath)
 		}
 
 		// Wrap content in fenced code block
@@ -161,16 +166,16 @@ func (s *MarkdownSerializer) renderTreeAsMarkdownList(node *TreeNode, depth int)
 // It also checks if the file exceeds the large file size threshold and returns a flag if it does.
 func (s *MarkdownSerializer) readAndNormalizeContent(baseDir, relPath string, redactionInfo *RedactionInfo, largeFileSizeThreshold int64) (string, bool, error) {
 	fullPath := filepath.Join(baseDir, relPath)
-	
+
 	// Check file size before reading
 	fileInfo, err := os.Stat(fullPath)
 	if err != nil {
 		return "", false, fmt.Errorf("failed to stat file %s: %w", fullPath, err)
 	}
-	
+
 	// Check if file exceeds large file threshold
 	isLargeFile := fileInfo.Size() > largeFileSizeThreshold
-	
+
 	contentBytes, err := os.ReadFile(fullPath)
 	if err != nil {
 		return "", false, fmt.Errorf("failed to read file %s: %w", fullPath, err)

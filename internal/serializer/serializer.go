@@ -2,10 +2,11 @@ package serializer
 
 import (
 	"fmt"
-	"github.com/foresturquhart/grimoire/internal/secrets"
 	"io"
 	"path/filepath"
 	"strings"
+
+	"github.com/foresturquhart/grimoire/internal/secrets"
 )
 
 // RedactionInfo contains information about secrets that need to be redacted.

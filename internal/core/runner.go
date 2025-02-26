@@ -2,9 +2,10 @@ package core
 
 import (
 	"fmt"
-	"github.com/foresturquhart/grimoire/internal/secrets"
 	"os"
 	"path/filepath"
+
+	"github.com/foresturquhart/grimoire/internal/secrets"
 
 	"github.com/foresturquhart/grimoire/internal/config"
 	"github.com/foresturquhart/grimoire/internal/serializer"
