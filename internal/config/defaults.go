@@ -34,19 +34,26 @@ var DefaultLargeFileSizeThreshold int64 = 1024 * 1024
 // DefaultIgnoredPathPatterns defines the default path patterns that are excluded from processing.
 // These include directories, build artifacts, caches, and temporary files.
 var DefaultIgnoredPathPatterns = []string{
-	// Common directories to ignore
-	`^\.git/`, `^\.next/`, `^node_modules/`, `^vendor/`, `^dist/`,
-	`^build/`, `^out/`, `^target/`, `^bin/`, `^obj/`, `^coverage/`,
-	`^test-results/`, `^\.idea/`, `^\.vscode/`, `^\.vs/`, `^\.settings/`,
-	`^\.gradle/`, `^\.mvn/`, `^\.pytest_cache/`, `^__pycache__/`,
-	`^\.sass-cache/`, `^\.vercel/`, `^\.turbo/`,
+	// Common directories to ignore anywhere in the path
+	// Using (^|/) to match either the start of a string or after a slash
+	`(^|/)\.git/`, `(^|/)\.next/`, `(^|/)node_modules/`, 
+	`(^|/)dist/`, `(^|/)build/`, `(^|/)out/`, `(^|/)target/`,
+	`(^|/)\.cache/`, `(^|/)coverage/`, `(^|/)test-results/`,
+	`(^|/)\.idea/`, `(^|/)\.vscode/`, `(^|/)\.vs/`, 
+	`(^|/)\.gradle/`, `(^|/)\.mvn/`, `(^|/)\.pytest_cache/`,
+	`(^|/)__pycache__/`, `(^|/)\.sass-cache/`, `(^|/)\.vercel/`,
+	`(^|/)\.turbo/`,
+    
+	// Directories that should be more specifically matched to avoid false positives
+	`(^|/)vendor/`, `(^|/)bin/`, `(^|/)obj/`, `(^|/)\.settings/`,
 
-	// Lock files and dependency metadata
-	`pnpm-lock\.yaml`, `package-lock\.json`, `yarn\.lock`, `Cargo\.lock`,
-	`Gemfile\.lock`, `composer\.lock`, `mix\.lock`, `poetry\.lock`,
-	`Pipfile\.lock`, `packages\.lock\.json`, `paket\.lock`,
+	// Lock files and dependency metadata (full path matches to avoid false positives)
+	`(^|/)pnpm-lock\.yaml$`, `(^|/)package-lock\.json$`, `(^|/)yarn\.lock$`, 
+	`(^|/)Cargo\.lock$`, `(^|/)Gemfile\.lock$`, `(^|/)composer\.lock$`, 
+	`(^|/)mix\.lock$`, `(^|/)poetry\.lock$`, `(^|/)Pipfile\.lock$`, 
+	`(^|/)packages\.lock\.json$`, `(^|/)paket\.lock$`,
 
-	// Temporary and binary files
+	// Temporary and binary files (match full extensions)
 	`\.pyc$`, `\.pyo$`, `\.pyd$`, `\.class$`, `\.o$`, `\.obj$`,
 	`\.dll$`, `\.exe$`, `\.so$`, `\.dylib$`, `\.log$`, `\.tmp$`,
 	`\.temp$`, `\.swp$`, `\.swo$`, `\.bak$`, `~$`,
@@ -55,5 +62,5 @@ var DefaultIgnoredPathPatterns = []string{
 	`\.DS_Store$`, `Thumbs\.db$`, `\.env(\..+)?$`,
 
 	// Specific files
-	`^LICENSE$`, `\.gitignore`,
+	`(^|/)LICENSE$`, `(^|/)\.gitignore$`,
 }
