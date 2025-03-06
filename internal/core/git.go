@@ -41,10 +41,21 @@ func (crc *cmdReadCloser) Close() error {
 	closeErr := crc.ReadCloser.Close()
 	waitErr := crc.cmd.Wait()
 
-	if closeErr != nil {
+	// If both errors are nil, return nil
+	if closeErr == nil && waitErr == nil {
+		return nil
+	}
+
+	// If only one error is non-nil, return that error
+	if closeErr == nil {
+		return waitErr
+	}
+	if waitErr == nil {
 		return closeErr
 	}
-	return waitErr
+
+	// If both errors are non-nil, combine them
+	return fmt.Errorf("multiple errors on close: %w (close); %v (wait)", closeErr, waitErr)
 }
 
 // ListFileChanges runs the `git log --name-only ...` command and returns a stream of file paths.
@@ -55,7 +66,7 @@ func (e *DefaultGitExecutor) ListFileChanges(repoDir string) (io.ReadCloser, err
 		"-C", repoDir,
 		"log",
 		"--name-only",
-		"-l", "99999",
+		"-n", "99999",
 		"--pretty=format:",
 		"--no-merges",
 		"--relative",

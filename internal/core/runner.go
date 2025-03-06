@@ -122,8 +122,10 @@ func Run(cfg *config.Config) error {
 			return fmt.Errorf("failed to create output file: %w", err)
 		}
 		defer func() {
-			if cerr := writer.Close(); cerr != nil {
-				log.Warn().Err(cerr).Msg("Failed to close output file")
+			if writer != nil {
+				if cerr := writer.Close(); cerr != nil {
+					log.Warn().Err(cerr).Msg("Failed to close output file")
+				}
 			}
 		}()
 	} else {

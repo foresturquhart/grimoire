@@ -126,8 +126,11 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 	// If an output file is specified, and we are not forcing an overwrite,
 	// check if the file already exists.
 	if outputFile != "" && !force {
-		if _, err := os.Stat(outputFile); err == nil {
+		_, err := os.Stat(outputFile)
+		if err == nil {
 			log.Fatal().Msgf("Output file %s already exists, use --force to overwrite", outputFile)
+		} else if !os.IsNotExist(err) {
+			log.Fatal().Err(err).Msgf("Error checking output file %s", outputFile)
 		}
 	}
 
