@@ -1,9 +1,11 @@
 package serializer
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/foresturquhart/grimoire/internal/secrets"
@@ -72,12 +74,100 @@ func RedactSecrets(content string, findings []secrets.Finding) string {
 		return content
 	}
 
-	// For each finding, replace the secret with a redaction notice
-	redactedContent := content
+	// Line-based replacement for findings that include line numbers
+	lineBasedFindings := make([]secrets.Finding, 0)
+	generalFindings := make([]secrets.Finding, 0)
+
+	// Separate findings into line-based and general
 	for _, finding := range findings {
+		if finding.Line > 0 {
+			lineBasedFindings = append(lineBasedFindings, finding)
+		} else {
+			generalFindings = append(generalFindings, finding)
+		}
+	}
+
+	// If we have line-based findings, use line-by-line replacement
+	if len(lineBasedFindings) > 0 {
+		return redactByLine(content, lineBasedFindings, generalFindings)
+	}
+
+	// Sort findings by secret length in descending order (longest first)
+	// This helps avoid substring replacement issues
+	sort.Slice(generalFindings, func(i, j int) bool {
+		return len(generalFindings[i].Secret) > len(generalFindings[j].Secret)
+	})
+
+	// Handle general replacements
+	redactedContent := content
+	for _, finding := range generalFindings {
+		if finding.Secret == "" {
+			continue
+		}
 		redactionNotice := "[REDACTED SECRET: " + finding.Description + "]"
 		redactedContent = strings.Replace(redactedContent, finding.Secret, redactionNotice, -1)
 	}
 
 	return redactedContent
+}
+
+// redactByLine performs redaction on a line-by-line basis, which is more accurate
+// when line numbers are available in the findings
+func redactByLine(content string, lineBasedFindings []secrets.Finding, generalFindings []secrets.Finding) string {
+	// Group findings by line number for efficient lookup
+	findingsByLine := make(map[int][]secrets.Finding)
+	for _, finding := range lineBasedFindings {
+		findingsByLine[finding.Line] = append(findingsByLine[finding.Line], finding)
+	}
+
+	// Sort general findings by length (longest first)
+	sort.Slice(generalFindings, func(i, j int) bool {
+		return len(generalFindings[i].Secret) > len(generalFindings[j].Secret)
+	})
+
+	var result strings.Builder
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	lineNum := 1
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// First apply line-specific redactions
+		if findings, ok := findingsByLine[lineNum]; ok {
+			// For each line, sort by secret length (longest first)
+			sort.Slice(findings, func(i, j int) bool {
+				return len(findings[i].Secret) > len(findings[j].Secret)
+			})
+
+			// Apply redactions for this line
+			for _, finding := range findings {
+				if finding.Secret == "" {
+					continue
+				}
+				redactionNotice := "[REDACTED SECRET: " + finding.Description + "]"
+				line = strings.Replace(line, finding.Secret, redactionNotice, -1)
+			}
+		}
+
+		// Then apply general redactions that might span multiple lines
+		for _, finding := range generalFindings {
+			if finding.Secret == "" {
+				continue
+			}
+			redactionNotice := "[REDACTED SECRET: " + finding.Description + "]"
+			line = strings.Replace(line, finding.Secret, redactionNotice, -1)
+		}
+
+		result.WriteString(line)
+		result.WriteString("\n")
+		lineNum++
+	}
+
+	// Remove the trailing newline if the original content didn't have one
+	resultStr := result.String()
+	if !strings.HasSuffix(content, "\n") && strings.HasSuffix(resultStr, "\n") {
+		resultStr = resultStr[:len(resultStr)-1]
+	}
+
+	return resultStr
 }
