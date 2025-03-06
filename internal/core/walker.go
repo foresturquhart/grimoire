@@ -2,12 +2,16 @@ package core
 
 import (
 	"fmt"
-	"github.com/rs/zerolog/log"
-	gitignore "github.com/sabhiram/go-gitignore"
 	"os"
 	"path/filepath"
 	"regexp"
+
+	"github.com/rs/zerolog/log"
+	gitignore "github.com/sabhiram/go-gitignore"
 )
+
+// MaxTraversalDepth defines the maximum depth for directory traversal to prevent stack overflow
+const MaxTraversalDepth = 256
 
 // Walker defines an interface for traversing directories and returning a list of file paths.
 type Walker interface {
@@ -46,7 +50,7 @@ func NewDefaultWalker(targetDir string, allowedFileExtensions map[string]bool, i
 func (dw *DefaultWalker) Walk() ([]string, error) {
 	var files []string
 	// Start traversal with no inherited ignore rules.
-	if err := dw.traverse(dw.targetDir, nil, &files); err != nil {
+	if err := dw.traverse(dw.targetDir, nil, &files, 0); err != nil {
 		return nil, fmt.Errorf("directory traversal failed: %w", err)
 	}
 	return files, nil
@@ -56,7 +60,12 @@ func (dw *DefaultWalker) Walk() ([]string, error) {
 // It accumulates ignore rules from any local .gitignore and .grimoireignore files,
 // applies the allowed extension and ignored path regex filters,
 // and appends any qualifying file paths (relative to targetDir) to the files slice.
-func (dw *DefaultWalker) traverse(dir string, inheritedIgnores []*gitignore.GitIgnore, files *[]string) error {
+func (dw *DefaultWalker) traverse(dir string, inheritedIgnores []*gitignore.GitIgnore, files *[]string, depth int) error {
+	// Check if maximum depth has been reached
+	if depth >= MaxTraversalDepth {
+		return fmt.Errorf("maximum directory depth of %d exceeded at %s", MaxTraversalDepth, dir)
+	}
+
 	// Start with the ignore rules inherited from parent directories.
 	currentIgnores := append([]*gitignore.GitIgnore{}, inheritedIgnores...)
 
@@ -126,7 +135,7 @@ func (dw *DefaultWalker) traverse(dir string, inheritedIgnores []*gitignore.GitI
 
 		// If the entry is a directory, recursively traverse it.
 		if entry.IsDir() {
-			if err := dw.traverse(fullPath, currentIgnores, files); err != nil {
+			if err := dw.traverse(fullPath, currentIgnores, files, depth+1); err != nil {
 				return err
 			}
 		} else {
