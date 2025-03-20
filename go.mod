@@ -57,7 +57,7 @@ require (
 )
 
 require (
-	github.com/BurntSushi/toml v1.4.0
+	github.com/BurntSushi/toml v1.5.0
 	github.com/tiktoken-go/tokenizer v0.6.0
 	github.com/urfave/cli/v3 v3.0.0-beta1
 	github.com/zricethezav/gitleaks/v8 v8.24.0
