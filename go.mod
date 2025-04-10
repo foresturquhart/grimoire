@@ -1,6 +1,7 @@
 module github.com/foresturquhart/grimoire
 
 go 1.24.1
+
 require (
 	github.com/rs/zerolog v1.34.0
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
@@ -49,7 +50,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/sync v0.12.0 // indirect
+	golang.org/x/sync v0.13.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
@@ -60,5 +61,5 @@ require (
 	github.com/tiktoken-go/tokenizer v0.6.1
 	github.com/urfave/cli/v3 v3.1.1
 	github.com/zricethezav/gitleaks/v8 v8.24.2
-	golang.org/x/text v0.23.0
+	golang.org/x/text v0.24.0
 )
