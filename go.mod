@@ -1,6 +1,7 @@
 module github.com/foresturquhart/grimoire
 
 go 1.24.1
+
 require (
 	github.com/rs/zerolog v1.34.0
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
@@ -58,7 +59,7 @@ require (
 require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/tiktoken-go/tokenizer v0.6.1
-	github.com/urfave/cli/v3 v3.1.1
+	github.com/urfave/cli/v3 v3.2.0
 	github.com/zricethezav/gitleaks/v8 v8.24.2
 	golang.org/x/text v0.23.0
 )
