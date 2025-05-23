@@ -31,9 +31,9 @@ var DefaultAllowedFileExtensions = []string{
 // a file is considered "large" and a warning will be logged.
 var DefaultLargeFileSizeThreshold int64 = 1024 * 1024
 
-// DefaultHighTokenCountThreshold defines the default token count (5000) above which
+// DefaultHighTokenThreshold defines the default token count (5000) above which
 // a file is considered to have a high token count and a warning will be logged.
-var DefaultHighTokenCountThreshold = 5000
+var DefaultHighTokenThreshold = 5000
 
 // DefaultIgnoredPathPatterns defines the default path patterns that are excluded from processing.
 // These include directories, build artifacts, caches, and temporary files.
