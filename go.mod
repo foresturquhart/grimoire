@@ -58,7 +58,7 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.5.0
-	github.com/tiktoken-go/tokenizer v0.6.1
+	github.com/tiktoken-go/tokenizer v0.6.2
 	github.com/urfave/cli/v3 v3.3.3
 	github.com/zricethezav/gitleaks/v8 v8.26.0
 	golang.org/x/text v0.25.0
