@@ -90,7 +90,13 @@ func CountFileTokens(filePath, content string) (int, error) {
 		return 0, nil
 	}
 
-	count, err := CountTokens(content)
+	// Reuse the shared encoder instance
+	enc, err := getEncoder()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get encoder for file %s: %w", filePath, err)
+	}
+
+	count, err := enc.Count(content)
 	if err != nil {
 		return 0, fmt.Errorf("failed to count tokens for file %s: %w", filePath, err)
 	}
