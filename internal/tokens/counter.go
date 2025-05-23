@@ -1,6 +1,7 @@
 package tokens
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/tiktoken-go/tokenizer"
@@ -80,4 +81,19 @@ func (c *StreamingTokenCounter) TokenCount() int {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.tokenCount
+}
+
+// CountFileTokens counts the tokens in a specific file content and returns
+// the count along with any error. This is useful for per-file token analysis.
+func CountFileTokens(filePath, content string) (int, error) {
+	if content == "" {
+		return 0, nil
+	}
+
+	count, err := CountTokens(content)
+	if err != nil {
+		return 0, fmt.Errorf("failed to count tokens for file %s: %w", filePath, err)
+	}
+
+	return count, nil
 }

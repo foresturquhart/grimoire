@@ -50,6 +50,10 @@ type Config struct {
 	// and a warning will be logged. Default is 1MB.
 	LargeFileSizeThreshold int64
 
+	// HighTokenCountThreshold defines the token count above which a file is considered
+	// to have a high token count and a warning will be logged. Default is 5000.
+	HighTokenCountThreshold int
+
 	// SkipTokenCount indicates whether to skip counting output tokens.
 	SkipTokenCount bool
 
@@ -155,20 +159,27 @@ func NewConfigFromCommand(cmd *cli.Command) *Config {
 	// Use the default large file size threshold
 	largeFileSizeThreshold := DefaultLargeFileSizeThreshold
 
+	// Get high token count threshold from CLI or use default
+	highTokenCountThreshold := cmd.Int("high-token-threshold")
+	if highTokenCountThreshold <= 0 {
+		highTokenCountThreshold = DefaultHighTokenCountThreshold
+	}
+
 	cfg := &Config{
-		TargetDir:              targetDir,
-		OutputFile:             outputFile,
-		Force:                  force,
-		ShowTree:               showTree,
-		DisableSort:            disableSort,
-		Format:                 format,
-		AllowedFileExtensions:  allowedFileExtensionsMap,
-		IgnoredPathRegexes:     ignoredPathRegexes,
-		IgnoreSecrets:          ignoreSecrets,
-		RedactSecrets:          redactSecrets,
-		LargeFileSizeThreshold: largeFileSizeThreshold,
-		SkipTokenCount:         skipTokenCount,
-		TokenCountMode:         tokenCountMode,
+		TargetDir:               targetDir,
+		OutputFile:              outputFile,
+		Force:                   force,
+		ShowTree:                showTree,
+		DisableSort:             disableSort,
+		Format:                  format,
+		AllowedFileExtensions:   allowedFileExtensionsMap,
+		IgnoredPathRegexes:      ignoredPathRegexes,
+		IgnoreSecrets:           ignoreSecrets,
+		RedactSecrets:           redactSecrets,
+		LargeFileSizeThreshold:  largeFileSizeThreshold,
+		HighTokenCountThreshold: highTokenCountThreshold,
+		SkipTokenCount:          skipTokenCount,
+		TokenCountMode:          tokenCountMode,
 	}
 
 	return cfg

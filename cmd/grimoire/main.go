@@ -63,6 +63,11 @@ func main() {
 				Usage: "Output format (md, xml, or txt). Defaults to md.",
 				Value: "md",
 			},
+			&cli.IntFlag{
+				Name:  "high-token-threshold",
+				Usage: "Threshold for warning about files with high token counts. Defaults to 5000.",
+				Value: 5000,
+			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return core.Run(

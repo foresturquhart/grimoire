@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/foresturquhart/grimoire/internal/tokens"
 	"github.com/rs/zerolog/log"
 )
 
@@ -27,7 +28,9 @@ func NewPlainTextSerializer() *PlainTextSerializer {
 // If redactionInfo is not nil, it redacts secrets from the output.
 // largeFileSizeThreshold defines the size in bytes above which a file is considered "large"
 // and a warning will be logged.
-func (s *PlainTextSerializer) Serialize(writer io.Writer, baseDir string, filePaths []string, showTree bool, redactionInfo *RedactionInfo, largeFileSizeThreshold int64) error {
+// highTokenCountThreshold defines the token count above which a file is considered
+// to have a high token count and a warning will be logged.
+func (s *PlainTextSerializer) Serialize(writer io.Writer, baseDir string, filePaths []string, showTree bool, redactionInfo *RedactionInfo, largeFileSizeThreshold int64, highTokenCountThreshold int) error {
 	// Write the header with timestamp
 	timestamp := time.Now().UTC().Format(time.RFC3339Nano)
 
@@ -95,7 +98,7 @@ func (s *PlainTextSerializer) Serialize(writer io.Writer, baseDir string, filePa
 		}
 
 		// Read and normalize file content
-		content, isLargeFile, err := s.readAndNormalizeContent(baseDir, relPath, redactionInfo, largeFileSizeThreshold)
+		content, isLargeFile, err := s.readAndNormalizeContent(baseDir, relPath, redactionInfo, largeFileSizeThreshold, highTokenCountThreshold)
 		if err != nil {
 			log.Warn().Err(err).Msgf("Skipping file %s due to read error", relPath)
 			continue
@@ -172,7 +175,7 @@ func (s *PlainTextSerializer) renderTreeAsPlainText(node *TreeNode, depth int) s
 // content by trimming surrounding whitespace and trailing spaces on each line.
 // If redactionInfo is not nil, it redacts secrets from the output.
 // It also checks if the file exceeds the large file size threshold and returns a flag if it does.
-func (s *PlainTextSerializer) readAndNormalizeContent(baseDir, relPath string, redactionInfo *RedactionInfo, largeFileSizeThreshold int64) (string, bool, error) {
+func (s *PlainTextSerializer) readAndNormalizeContent(baseDir, relPath string, redactionInfo *RedactionInfo, largeFileSizeThreshold int64, highTokenCountThreshold int) (string, bool, error) {
 	fullPath := filepath.Join(baseDir, relPath)
 
 	// Check file size before reading
@@ -198,6 +201,16 @@ func (s *PlainTextSerializer) readAndNormalizeContent(baseDir, relPath string, r
 		fileFindings := GetFindingsForFile(redactionInfo, relPath, baseDir)
 		if len(fileFindings) > 0 {
 			normalizedContent = RedactSecrets(normalizedContent, fileFindings)
+		}
+	}
+
+	// Count tokens for this file and warn if it exceeds the threshold
+	if highTokenCountThreshold > 0 {
+		tokenCount, err := tokens.CountFileTokens(relPath, normalizedContent)
+		if err != nil {
+			log.Warn().Err(err).Msgf("Failed to count tokens for file %s", relPath)
+		} else if tokenCount > highTokenCountThreshold {
+			log.Warn().Msgf("File %s has a high token count (%d tokens, threshold: %d). Consider reviewing for optimization.", relPath, tokenCount, highTokenCountThreshold)
 		}
 	}
 

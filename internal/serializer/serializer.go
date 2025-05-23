@@ -33,7 +33,9 @@ type Serializer interface {
 	// It returns an error if the serialization process fails.
 	// largeFileSizeThreshold defines the size in bytes above which a file is considered "large"
 	// and a warning will be logged.
-	Serialize(writer io.Writer, baseDir string, filePaths []string, showTree bool, redactionInfo *RedactionInfo, largeFileSizeThreshold int64) error
+	// highTokenCountThreshold defines the token count above which a file is considered
+	// to have a high token count and a warning will be logged.
+	Serialize(writer io.Writer, baseDir string, filePaths []string, showTree bool, redactionInfo *RedactionInfo, largeFileSizeThreshold int64, highTokenCountThreshold int) error
 }
 
 // NewSerializer creates serializers based on the specified format string
