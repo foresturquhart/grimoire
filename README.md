@@ -55,7 +55,7 @@ grimoire --redact-secrets -o output.md .
 * **Git Integration:** Prioritizes files by commit frequency when working within a Git repository.
 * **Secret Detection:** Scans files for potential secrets or sensitive information to prevent accidental exposure.
 * **Secret Redaction:** Optionally redacts detected secrets in the output while preserving the overall code structure.
-* **Token Counting:** Estimates the token count of generated output to help manage LLM context limits.
+* **Token Counting:** Calculates the token count of generated output to help manage LLM context limits.
 * **Minified File Detection:** Automatically identifies minified JavaScript and CSS files to warn about high token usage.
 * **Flexible Output:** Supports output to stdout or a specified file.
 
@@ -145,7 +145,6 @@ grimoire [options] <target directory>
 - `--ignore-secrets`: Proceed with output generation even if secrets are detected.
 - `--redact-secrets`: Redact detected secrets in output rather than failing.
 - `--skip-token-count`: Skip counting output tokens.
-- `--token-count-mode <mode>`: Token counting mode: `fast` (default) or `exact` (slower but more accurate).
 - `--version`: Display the current version.
 
 ### Examples
@@ -173,10 +172,6 @@ grimoire [options] <target directory>
 6. Scan for secrets and redact them in the output:
    ```bash
    grimoire --redact-secrets -o output.md ./myproject
-   ```
-7. Use exact token counting mode:
-   ```bash
-   grimoire --token-count-mode exact -o output.md ./myproject
    ```
 
 ## Configuration
@@ -223,14 +218,7 @@ Each format includes metadata, a summary section, an optional directory tree, an
 
 ## Token Counting
 
-Grimoire includes built-in token counting to help you manage LLM context limits. The token count is estimated using the same tokenizer used by many LLMs.
-
-Two token counting modes are available:
-
-1. **Fast Mode** (default): Counts tokens in chunks as the output is generated. Slightly less accurate but more efficient for large codebases.
-2. **Exact Mode**: Counts all tokens in the entire output at once. More accurate but can be slower and more memory-intensive for large outputs.
-
-You can disable token counting entirely using the `--skip-token-count` flag.
+Grimoire includes built-in token counting to help you manage LLM context limits. The token count is estimated using the same tokenizer used by many LLMs. You can disable token counting entirely using the `--skip-token-count` flag.
 
 ## Secret Detection
 
