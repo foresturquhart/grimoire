@@ -1,6 +1,7 @@
 package tokens
 
 import (
+	"bytes"
 	"fmt"
 	"sync"
 
@@ -39,10 +40,14 @@ func CountTokens(text string) (int, error) {
 }
 
 // StreamingTokenCounter maintains an incremental token count for streaming content
+// StreamingTokenCounter keeps a running token count for streaming content. It
+// stores all text added so far to ensure that tokens spanning chunk boundaries
+// are counted correctly.
 type StreamingTokenCounter struct {
 	enc        tokenizer.Codec
 	tokenCount int
 	mu         sync.Mutex
+	buffer     bytes.Buffer
 }
 
 // NewStreamingCounter creates a new streaming token counter
@@ -67,12 +72,16 @@ func (c *StreamingTokenCounter) AddText(text string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	count, err := c.enc.Count(text)
+	// Append new text to the buffer and recount the entire buffer. This
+	// ensures tokens that span chunk boundaries are handled correctly.
+	c.buffer.WriteString(text)
+
+	count, err := c.enc.Count(c.buffer.String())
 	if err != nil {
 		return err
 	}
 
-	c.tokenCount += count
+	c.tokenCount = count
 	return nil
 }
 
