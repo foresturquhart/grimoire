@@ -1,6 +1,6 @@
 module github.com/foresturquhart/grimoire
 
-go 1.24.3
+go 1.24.5
 
 require (
 	github.com/BurntSushi/toml v1.5.0

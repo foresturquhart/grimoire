@@ -6,7 +6,7 @@
 
 <hr />
 
-[![go](https://badgen.net/static/go/1.24.3)](https://go.dev/)
+[![go](https://badgen.net/static/go/1.24.5)](https://go.dev/)
 [![license](https://badgen.net/github/license/foresturquhart/grimoire)](https://github.com/foresturquhart/grimoire/blob/main/LICENSE)
 [![release](https://badgen.net/github/release/foresturquhart/grimoire/stable)](https://github.com/foresturquhart/grimoire/releases)
 
@@ -84,12 +84,12 @@ This script automatically:
 You can also manually download a pre-compiled binary from the [releases page](https://github.com/foresturquhart/grimoire/releases).
 
 1. Visit the [releases page](https://github.com/foresturquhart/grimoire/releases).
-2. Download the appropriate archive for your system (e.g., `grimoire-1.2.1-linux-amd64.tar.gz` or `grimoire-1.2.1-darwin-arm64.tar.gz`).
+2. Download the appropriate archive for your system (e.g., `grimoire-1.2.2-linux-amd64.tar.gz` or `grimoire-1.2.2-darwin-arm64.tar.gz`).
 3. Extract the archive to retrieve the `grimoire` executable.
 4. Move the `grimoire` executable to a directory in your system's `PATH` (e.g., `/usr/local/bin` or `~/.local/bin`). You may need to use `sudo` for system-wide locations:
    ```bash
-   tar -xzf grimoire-1.2.1-linux-amd64.tar.gz
-   cd grimoire-1.2.1-linux-amd64
+   tar -xzf grimoire-1.2.2-linux-amd64.tar.gz
+   cd grimoire-1.2.2-linux-amd64
    sudo mv grimoire /usr/local/bin/
    ```
 5. Verify the installation:
