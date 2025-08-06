@@ -8,7 +8,7 @@ require (
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
 	github.com/tiktoken-go/tokenizer v0.6.2
 	github.com/urfave/cli/v3 v3.3.8
-	github.com/zricethezav/gitleaks/v8 v8.27.2
+	github.com/zricethezav/gitleaks/v8 v8.28.0
 	golang.org/x/text v0.27.0
 )
 
