@@ -9,7 +9,7 @@ require (
 	github.com/tiktoken-go/tokenizer v0.6.2
 	github.com/urfave/cli/v3 v3.3.8
 	github.com/zricethezav/gitleaks/v8 v8.28.0
-	golang.org/x/text v0.27.0
+	golang.org/x/text v0.31.0
 )
 
 require (
@@ -72,10 +72,10 @@ require (
 	github.com/wasilibs/wazero-helpers v0.0.0-20240620070341-3dff1577cd52 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
-	golang.org/x/crypto v0.35.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa // indirect
-	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
